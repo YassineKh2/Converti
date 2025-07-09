@@ -155,6 +155,7 @@ export default function FileConverter() {
                                     {conversionOptions.map((format) => (
                                         <Button
                                             key={format}
+                                            // @ts-ignore
                                             variant={selectedFormat === format ? "default" : "outline"}
                                             className="h-12"
                                             onClick={() => setSelectedFormat(format)}
