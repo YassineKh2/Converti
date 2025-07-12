@@ -12,7 +12,7 @@ import {formatFileSize} from "@/Helpers/formatFileSize";
 import {getConversionOptions} from "@/Helpers/getConversionOptions";
 import {getFileIcon} from "@/Helpers/getFileIcon";
 
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 
 
 export default function FileConverter() {
@@ -20,7 +20,7 @@ export default function FileConverter() {
     const [isDragOver, setIsDragOver] = useState(false)
     const [selectedFormat, setSelectedFormat] = useState<string>("")
 
-    const { toast } = useToast()
+    const reader = new FileReader();
 
     const handleDragOver = useCallback((e: React.DragEvent) => {
         e.preventDefault()
@@ -71,10 +71,9 @@ export default function FileConverter() {
 
     const handleConvert = () => {
         if (uploadedFile && selectedFormat) {
-            toast({
-                description: "Hold tight , your conversion has started !",
-            })
-            alert(`Converting ${uploadedFile.name} to ${selectedFormat} format...`)
+            toast("Hold tight , your conversion has started !")
+
+            window.ipcRenderer.send('receive', uploadedFile);
         }
     }
 
@@ -89,7 +88,7 @@ export default function FileConverter() {
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
             <div className="max-w-4xl mx-auto">
                 <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-2">File Converter</h1>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-2">CONVERTI</h1>
                     <p className="text-gray-600">Drag and drop any file to convert it to different formats</p>
                 </div>
 
@@ -155,8 +154,7 @@ export default function FileConverter() {
                                     {conversionOptions.map((format) => (
                                         <Button
                                             key={format}
-                                            // @ts-ignore
-                                            variant={selectedFormat === format ? "default" : "outline"}
+                                            variant={selectedFormat  === format  ? "default" : "outline"}
                                             className="h-12"
                                             onClick={() => setSelectedFormat(format)}
                                         >

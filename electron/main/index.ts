@@ -48,13 +48,11 @@ async function createWindow() {
     icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
     webPreferences: {
       preload,
-      // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
-      // nodeIntegration: true,
-
-      // Consider using contextBridge.exposeInMainWorld
-      // Read more on https://www.electronjs.org/docs/latest/tutorial/context-isolation
-      // contextIsolation: false,
+      contextIsolation: true,
+      nodeIntegration: false,
     },
+    height : 700,
+    width: 900
   })
 
   if (VITE_DEV_SERVER_URL) { // #298
@@ -118,3 +116,10 @@ ipcMain.handle('open-win', (_, arg) => {
     childWindow.loadFile(indexHtml, { hash: arg })
   }
 })
+
+
+// Functions
+ipcMain.on('receive', (_, arg) => {
+  console.log(arg)
+})
+
