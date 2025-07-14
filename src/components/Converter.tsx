@@ -1,26 +1,29 @@
 import type React from "react"
-
-import { useState, useCallback } from "react"
-import { Upload, X } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { UploadedFile as UploadedFileType} from "@/type/UploadedFile";
+import {useCallback, useEffect, useState} from "react"
+import {Upload, X} from "lucide-react"
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import {Button} from "@/components/ui/button"
+import {Badge} from "@/components/ui/badge"
+import {Separator} from "@/components/ui/separator"
+import {UploadedFile as UploadedFileType} from "@/type/UploadedFile";
 import {getFileCategory} from "@/Helpers/getFileCategory";
 import {formatFileSize} from "@/Helpers/formatFileSize";
 import {getConversionOptions} from "@/Helpers/getConversionOptions";
 import {getFileIcon} from "@/Helpers/getFileIcon";
 
-import { toast } from "sonner"
-
+import {toast} from "sonner"
 
 export default function FileConverter() {
     const [uploadedFile, setUploadedFile] = useState<UploadedFileType | null>(null)
     const [isDragOver, setIsDragOver] = useState(false)
     const [selectedFormat, setSelectedFormat] = useState<string>("")
+    const [tempDir, setTempDir] = useState<string>("")
 
-    const reader = new FileReader();
+    useEffect(()=>{
+        window.ipcRenderer.invoke('get-temp-folder').then((tempFolderPath) => {
+            setTempDir(tempFolderPath)
+        });
+    },[])
 
     const handleDragOver = useCallback((e: React.DragEvent) => {
         e.preventDefault()
@@ -69,11 +72,12 @@ export default function FileConverter() {
         }
     }
 
-    const handleConvert = () => {
+    const handleConvert = async () => {
         if (uploadedFile && selectedFormat) {
             toast("Hold tight , your conversion has started !")
-
-            window.ipcRenderer.send('receive', uploadedFile);
+            uploadedFile.path = await window.ipcRenderer.showFilePath(uploadedFile.file)
+            console.log('uploadedFile')
+            window.ipcRenderer.send('receive', {uploadedFile , selectedFormat});
         }
     }
 

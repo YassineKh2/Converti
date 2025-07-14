@@ -3,9 +3,14 @@ import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import os from 'node:os'
+import fs from 'node:fs'
+import {UploadedFile as UploadedFileType} from "@/type/UploadedFile";
+import {SaveFileToTemp} from "../Helpers/SaveFile";
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const tmpDir = path.join(app.getPath('userData'), 'temp_files');
+
 
 // The built directory structure
 //
@@ -74,11 +79,18 @@ async function createWindow() {
     return { action: 'deny' }
   })
 
+  if (!fs.existsSync(tmpDir)) {
+    fs.mkdirSync(tmpDir);
+  }
+
 }
 
 app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {
+  if (fs.existsSync(tmpDir)) {
+    fs.rmdirSync(tmpDir, { recursive: true });
+  }
   win = null
   if (process.platform !== 'darwin') app.quit()
 })
@@ -119,7 +131,15 @@ ipcMain.handle('open-win', (_, arg) => {
 
 
 // Functions
+
+ipcMain.handle('get-temp-folder', () => {
+  return tmpDir;
+});
+
 ipcMain.on('receive', (_, arg) => {
-  console.log(arg)
+  const { uploadedFile, selectedFormat }: { uploadedFile: UploadedFileType; selectedFormat: string } = arg;
+  console.log(tmpDir)
+  if (uploadedFile.path)
+    SaveFileToTemp(tmpDir,uploadedFile.path,uploadedFile.name)
 })
 

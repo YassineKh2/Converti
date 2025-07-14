@@ -1,4 +1,4 @@
-import { ipcRenderer, contextBridge } from 'electron'
+import {ipcRenderer, contextBridge, webUtils} from 'electron'
 
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld('ipcRenderer', {
@@ -18,9 +18,8 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
     const [channel, ...omit] = args
     return ipcRenderer.invoke(channel, ...omit)
   },
-  getFilePath: (file) => {
-    console.log(file.path)
-    return file.path
+  showFilePath (file) {
+    return webUtils.getPathForFile(file)
   }
 
 })
