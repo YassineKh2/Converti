@@ -1,6 +1,6 @@
 export const getConversionOptions = (category: string, currentType: string): string[] => {
     const options: Record<string, string[]> = {
-        image: ["JPG", "PNG", "WebP", "GIF", "SVG", "BMP", "TIFF", "ICO"],
+        image: ["JPG", "JPEG", "PNG", "WebP", "GIF", "AVIF", "SVG", "BMP", "TIFF", "ICO"],
         video: ["MP3","MP4", "AVI", "MOV", "WMV", "FLV", "MKV", "WebM", "M4V"],
         audio: ["MP3", "WAV", "FLAC", "AAC", "OGG", "M4A", "WMA"],
         document: ["PDF", "DOCX", "TXT", "RTF", "ODT", "HTML", "EPUB"],

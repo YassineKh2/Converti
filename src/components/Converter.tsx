@@ -1,5 +1,4 @@
-import type React from "react"
-import {useCallback, useEffect, useState} from "react"
+import {ChangeEvent, DragEvent, useCallback, useState} from "react"
 import {Upload, X} from "lucide-react"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Button} from "@/components/ui/button"
@@ -10,32 +9,24 @@ import {getFileCategory} from "@/Helpers/getFileCategory";
 import {formatFileSize} from "@/Helpers/formatFileSize";
 import {getConversionOptions} from "@/Helpers/getConversionOptions";
 import {getFileIcon} from "@/Helpers/getFileIcon";
-
 import {toast} from "sonner"
 
 export default function FileConverter() {
     const [uploadedFile, setUploadedFile] = useState<UploadedFileType | null>(null)
     const [isDragOver, setIsDragOver] = useState(false)
     const [selectedFormat, setSelectedFormat] = useState<string>("")
-    const [tempDir, setTempDir] = useState<string>("")
 
-    useEffect(()=>{
-        window.ipcRenderer.invoke('get-temp-folder').then((tempFolderPath) => {
-            setTempDir(tempFolderPath)
-        });
-    },[])
-
-    const handleDragOver = useCallback((e: React.DragEvent) => {
+    const handleDragOver = useCallback((e: DragEvent) => {
         e.preventDefault()
         setIsDragOver(true)
     }, [])
 
-    const handleDragLeave = useCallback((e: React.DragEvent) => {
+    const handleDragLeave = useCallback((e: DragEvent) => {
         e.preventDefault()
         setIsDragOver(false)
     }, [])
 
-    const handleDrop = useCallback((e: React.DragEvent) => {
+    const handleDrop = useCallback((e: DragEvent) => {
         e.preventDefault()
         setIsDragOver(false)
 
@@ -49,13 +40,14 @@ export default function FileConverter() {
                 name: file.name,
                 size: formatFileSize(file.size),
                 type: file.type,
-                category
+                category,
+                path:''
             })
             setSelectedFormat("")
         }
     }, [])
 
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files
         if (files && files.length > 0) {
             const file = files[0]
@@ -67,6 +59,7 @@ export default function FileConverter() {
                 size: formatFileSize(file.size),
                 type: file.type,
                 category,
+                path:''
             })
             setSelectedFormat("")
         }
@@ -76,7 +69,6 @@ export default function FileConverter() {
         if (uploadedFile && selectedFormat) {
             toast("Hold tight , your conversion has started !")
             uploadedFile.path = await window.ipcRenderer.showFilePath(uploadedFile.file)
-            console.log('uploadedFile')
             window.ipcRenderer.send('receive', {uploadedFile , selectedFormat});
         }
     }

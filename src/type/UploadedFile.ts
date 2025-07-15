@@ -4,5 +4,5 @@ export type UploadedFile = {
     size: string
     type: string
     category: string
-    path?: string
+    path: string
 }

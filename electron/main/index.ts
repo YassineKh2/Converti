@@ -1,11 +1,12 @@
-import { app, BrowserWindow, shell, ipcMain } from 'electron'
-import { createRequire } from 'node:module'
-import { fileURLToPath } from 'node:url'
+import {app, BrowserWindow, ipcMain, shell} from 'electron'
+import {createRequire} from 'node:module'
+import {fileURLToPath} from 'node:url'
 import path from 'node:path'
 import os from 'node:os'
 import fs from 'node:fs'
 import {UploadedFile as UploadedFileType} from "@/type/UploadedFile";
 import {SaveFileToTemp} from "../Helpers/SaveFile";
+import {ToAVIF, ToGIF, ToJPEG, ToJPG, ToPNG, ToSVG, ToWEBP} from "../Helpers/ImagesConverter";
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -29,8 +30,8 @@ export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
 export const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL
 
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL
-  ? path.join(process.env.APP_ROOT, 'public')
-  : RENDERER_DIST
+    ? path.join(process.env.APP_ROOT, 'public')
+    : RENDERER_DIST
 
 // Disable GPU Acceleration for Windows 7
 if (os.release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -39,8 +40,8 @@ if (os.release().startsWith('6.1')) app.disableHardwareAcceleration()
 if (process.platform === 'win32') app.setAppUserModelId(app.getName())
 
 if (!app.requestSingleInstanceLock()) {
-  app.quit()
-  process.exit(0)
+    app.quit()
+    process.exit(0)
 }
 
 let win: BrowserWindow | null = null
@@ -48,98 +49,167 @@ const preload = path.join(__dirname, '../preload/index.mjs')
 const indexHtml = path.join(RENDERER_DIST, 'index.html')
 
 async function createWindow() {
-  win = new BrowserWindow({
-    title: 'Main window',
-    icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
-    webPreferences: {
-      preload,
-      contextIsolation: true,
-      nodeIntegration: false,
-    },
-    height : 700,
-    width: 900
-  })
+    win = new BrowserWindow({
+        title: 'Main window',
+        icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
+        webPreferences: {
+            preload,
+            contextIsolation: true,
+            nodeIntegration: false,
+        },
+        height: 700,
+        width: 900
+    })
 
-  if (VITE_DEV_SERVER_URL) { // #298
-    win.loadURL(VITE_DEV_SERVER_URL)
-    // Open devTool if the app is not packaged
-    win.webContents.openDevTools()
-  } else {
-    win.loadFile(indexHtml)
-  }
+    if (VITE_DEV_SERVER_URL) { // #298
+        win.loadURL(VITE_DEV_SERVER_URL)
+        // Open devTool if the app is not packaged
+        win.webContents.openDevTools()
+    } else {
+        win.loadFile(indexHtml)
+    }
 
-  // Test actively push message to the Electron-Renderer
-  win.webContents.on('did-finish-load', () => {
-    win?.webContents.send('main-process-message', new Date().toLocaleString())
-  })
+    // Test actively push message to the Electron-Renderer
+    win.webContents.on('did-finish-load', () => {
+        win?.webContents.send('main-process-message', new Date().toLocaleString())
+    })
 
-  // Make all links open with the browser, not with the application
-  win.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('https:')) shell.openExternal(url)
-    return { action: 'deny' }
-  })
+    // Make all links open with the browser, not with the application
+    win.webContents.setWindowOpenHandler(({url}) => {
+        if (url.startsWith('https:')) shell.openExternal(url)
+        return {action: 'deny'}
+    })
 
-  if (!fs.existsSync(tmpDir)) {
-    fs.mkdirSync(tmpDir);
-  }
+    if (!fs.existsSync(tmpDir)) {
+        fs.mkdirSync(tmpDir);
+    }
 
 }
 
 app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {
-  if (fs.existsSync(tmpDir)) {
-    fs.rmdirSync(tmpDir, { recursive: true });
-  }
-  win = null
-  if (process.platform !== 'darwin') app.quit()
+    if (fs.existsSync(tmpDir)) {
+        fs.rmdirSync(tmpDir, {recursive: true});
+    }
+    win = null
+    if (process.platform !== 'darwin') app.quit()
 })
 
 app.on('second-instance', () => {
-  if (win) {
-    // Focus on the main window if the user tried to open another
-    if (win.isMinimized()) win.restore()
-    win.focus()
-  }
+    if (win) {
+        // Focus on the main window if the user tried to open another
+        if (win.isMinimized()) win.restore()
+        win.focus()
+    }
 })
 
 app.on('activate', () => {
-  const allWindows = BrowserWindow.getAllWindows()
-  if (allWindows.length) {
-    allWindows[0].focus()
-  } else {
-    createWindow()
-  }
+    const allWindows = BrowserWindow.getAllWindows()
+    if (allWindows.length) {
+        allWindows[0].focus()
+    } else {
+        createWindow()
+    }
 })
 
 // New window example arg: new windows url
 ipcMain.handle('open-win', (_, arg) => {
-  const childWindow = new BrowserWindow({
-    webPreferences: {
-      preload,
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-  })
+    const childWindow = new BrowserWindow({
+        webPreferences: {
+            preload,
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    })
 
-  if (VITE_DEV_SERVER_URL) {
-    childWindow.loadURL(`${VITE_DEV_SERVER_URL}#${arg}`)
-  } else {
-    childWindow.loadFile(indexHtml, { hash: arg })
-  }
+    if (VITE_DEV_SERVER_URL) {
+        childWindow.loadURL(`${VITE_DEV_SERVER_URL}#${arg}`)
+    } else {
+        childWindow.loadFile(indexHtml, {hash: arg})
+    }
 })
 
 
 // Functions
 
 ipcMain.handle('get-temp-folder', () => {
-  return tmpDir;
+    return tmpDir;
 });
 
-ipcMain.on('receive', (_, arg) => {
-  const { uploadedFile, selectedFormat }: { uploadedFile: UploadedFileType; selectedFormat: string } = arg;
-  console.log(tmpDir)
-  if (uploadedFile.path)
-    SaveFileToTemp(tmpDir,uploadedFile.path,uploadedFile.name)
+ipcMain.on('receive', async (_, arg) => {
+    const {uploadedFile, selectedFormat}: { uploadedFile: UploadedFileType; selectedFormat: string } = arg;
+    const FilePath = await SaveFileToTemp(tmpDir, uploadedFile.path, uploadedFile.name)
+    const lastDotIndex = uploadedFile.name.lastIndexOf('.');
+    const FileName = uploadedFile.name.slice(0, lastDotIndex);
+
+    switch (selectedFormat.toUpperCase()) {
+        case "JPG":
+            await ToJPG(tmpDir,FilePath,FileName)
+            break;
+        case "JPEG":
+            await ToJPEG(tmpDir,FilePath,FileName)
+            break;
+        case "PNG":
+            await ToPNG(tmpDir,FilePath,FileName)
+            break;
+        case "WEBP":
+            await ToWEBP(tmpDir,FilePath,FileName)
+            break;
+        case "GIF":
+            await ToGIF(tmpDir,FilePath,FileName)
+            break;
+        case "AVIF":
+            await ToAVIF(tmpDir,FilePath,FileName)
+            break;
+        case "SVG":
+            await ToSVG(tmpDir,FilePath,FileName)
+            break;
+        case "BMP":
+        case "TIFF":
+        case "ICO":
+
+        // Video formats
+        case "MP4":
+        case "AVI":
+        case "MOV":
+        case "WMV":
+        case "FLV":
+        case "MKV":
+        case "WEBM":
+        case "M4V":
+
+        // Audio formats
+        case "MP3":
+        case "WAV":
+        case "FLAC":
+        case "AAC":
+        case "OGG":
+        case "M4A":
+        case "WMA":
+
+        // Document formats
+        case "PDF":
+        case "DOCX":
+        case "TXT":  // Also in "other"
+        case "RTF":
+        case "ODT":
+        case "HTML":
+        case "EPUB":
+
+        // Archive formats
+        case "ZIP":
+        case "RAR":
+        case "7Z":
+        case "TAR":
+        case "GZ":
+        case "BZ2":
+
+        // Other formats
+        case "JSON":
+        case "CSV":
+        case "XML":
+
+    }
 })
 
