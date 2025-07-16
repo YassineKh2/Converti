@@ -68,6 +68,8 @@ export default function FileConverter() {
     const handleConvert = async () => {
         if (uploadedFile && selectedFormat) {
             toast("Hold tight , your conversion has started !")
+            // showFilePath is showing as undefined
+            //@ts-ignore
             uploadedFile.path = await window.ipcRenderer.showFilePath(uploadedFile.file)
             window.ipcRenderer.send('receive', {uploadedFile , selectedFormat});
         }

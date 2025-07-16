@@ -7,6 +7,8 @@ import fs from 'node:fs'
 import {UploadedFile as UploadedFileType} from "@/type/UploadedFile";
 import {SaveFileToTemp} from "../Helpers/SaveFile";
 import {ToAVIF, ToBMP, ToGIF, ToICO, ToJPEG, ToJPG, ToPNG, ToSVG, ToTIFF, ToWEBP} from "../Helpers/ImagesConverter";
+import {getFFMPEG} from "../Helpers/GetFFMPEG";
+import { execFile } from 'child_process';
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -90,7 +92,7 @@ app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {
     if (fs.existsSync(tmpDir)) {
-        fs.rmdirSync(tmpDir, {recursive: true});
+        fs.rmSync(tmpDir, {recursive: true});
     }
     win = null
     if (process.platform !== 'darwin') app.quit()
@@ -114,7 +116,7 @@ app.on('activate', () => {
 })
 
 // New window example arg: new windows url
-ipcMain.handle('open-win', (_, arg) => {
+ipcMain.handle('open-win32', (_, arg) => {
     const childWindow = new BrowserWindow({
         webPreferences: {
             preload,
