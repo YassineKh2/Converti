@@ -6,7 +6,7 @@ import os from 'node:os'
 import fs from 'node:fs'
 import {UploadedFile as UploadedFileType} from "@/type/UploadedFile";
 import {SaveFileToTemp} from "../Helpers/SaveFile";
-import {ToAVIF, ToGIF, ToJPEG, ToJPG, ToPNG, ToSVG, ToWEBP} from "../Helpers/ImagesConverter";
+import {ToAVIF, ToBMP, ToGIF, ToICO, ToJPEG, ToJPG, ToPNG, ToSVG, ToTIFF, ToWEBP} from "../Helpers/ImagesConverter";
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -166,8 +166,15 @@ ipcMain.on('receive', async (_, arg) => {
             await ToSVG(tmpDir,FilePath,FileName)
             break;
         case "BMP":
+            await ToBMP(tmpDir,FilePath,FileName)
+            break;
         case "TIFF":
+            await ToTIFF(tmpDir,FilePath,FileName)
+            break;
         case "ICO":
+            const response = await ToICO(tmpDir,FilePath,FileName)
+            console.log(response)
+            break;
 
         // Video formats
         case "MP4":
