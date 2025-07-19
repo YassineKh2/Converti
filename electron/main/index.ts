@@ -9,6 +9,8 @@ import {SaveFileToTemp} from "../Helpers/SaveFile";
 import {ToAVIF, ToBMP, ToGIF, ToICO, ToJPEG, ToJPG, ToPNG, ToSVG, ToTIFF, ToWEBP} from "../Helpers/ImagesConverter";
 import {getFFMPEG} from "../Helpers/GetFFMPEG";
 import { execFile } from 'child_process';
+import {ToAVI, ToFLV, ToM4V, ToMKV, ToMOV, ToMP4, ToWEBM, ToWMV} from "../Helpers/VideoConverters";
+import {ToAAC, ToFLAC, ToM4A, ToMP3, ToOGG, ToWAV, ToWMA} from "../Helpers/AudioConverters";
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -180,27 +182,57 @@ ipcMain.on('receive', async (_, arg) => {
 
         // Video formats
         case "MP4":
+            await ToMP4(tmpDir,FilePath,FileName)
+            break;
         case "AVI":
+            await ToAVI(tmpDir, FilePath, FileName)
+            break;
         case "MOV":
+            await ToMOV(tmpDir, FilePath, FileName)
+            break;
         case "WMV":
+            await ToWMV(tmpDir, FilePath, FileName)
+            break;
         case "FLV":
+            await ToFLV(tmpDir, FilePath, FileName)
+            break;
         case "MKV":
+            await ToMKV(tmpDir, FilePath, FileName)
+            break;
         case "WEBM":
+            await ToWEBM(tmpDir, FilePath, FileName)
+            break;
         case "M4V":
+            await ToM4V(tmpDir, FilePath, FileName)
+            break;
 
         // Audio formats
         case "MP3":
+            await ToMP3(tmpDir,FilePath,FileName)
+            break;
         case "WAV":
+            await ToWAV(tmpDir, FilePath, FileName)
+            break;
         case "FLAC":
+            await ToFLAC(tmpDir, FilePath, FileName)
+            break;
         case "AAC":
+            await ToAAC(tmpDir, FilePath, FileName)
+            break;
         case "OGG":
+            await ToOGG(tmpDir, FilePath, FileName)
+            break;
         case "M4A":
+            await ToM4A(tmpDir, FilePath, FileName)
+            break;
         case "WMA":
+            await ToWMA(tmpDir, FilePath, FileName)
+            break;
 
         // Document formats
         case "PDF":
         case "DOCX":
-        case "TXT":  // Also in "other"
+        case "TXT":
         case "RTF":
         case "ODT":
         case "HTML":

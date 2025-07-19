@@ -5,17 +5,15 @@ import * as potrace from "potrace";
 import * as bmp from "sharp-bmp";
 import * as ico from "sharp-ico";
 import { Jimp } from "jimp";
+import {SanitizeFileName} from "./SanitizeFileName";
 
-function sanitizeFileName(name: string): string {
-    return name.replace(/[:\\/*?"<>|]/g, "_");
-}
 
 // Makes sure we can read the bmp images so that the converters can treat them
 async function loadSharpInstance(filePath: string): Promise<sharp.Sharp> {
     const ext = path.extname(filePath).toLowerCase();
     if (ext === ".bmp") {
         const buffer = await readFile(filePath);
-        const bitmap = bmp.decode(buffer);
+        const bitmap = bmp.decode(buffer)
         return sharp(bitmap.data, {
             raw: {
                 width: bitmap.width,
@@ -34,7 +32,7 @@ async function convertImage(
     format: "jpeg" | "png" | "webp" | "avif" | "gif",
     extension: string
 ): Promise<string> {
-    const safeName = sanitizeFileName(outputName);
+    const safeName = SanitizeFileName(outputName);
     const finalPath = path.join(outDir, `${safeName}.${extension}`);
 
     const instance = await loadSharpInstance(inputPath);
@@ -84,7 +82,7 @@ export const ToGIF = (out: string, inPath: string, name: string) =>
     convertImage(out, inPath, name, "gif", "gif");
 
 export async function ToSVG(outDir: string, inPath: string, name: string) {
-    const safeName = sanitizeFileName(name);
+    const safeName = SanitizeFileName(name);
     const finalPath = path.join(outDir, `${safeName}.svg`);
     const svg = await new Promise<string>((res, rej) =>
         potrace.trace(inPath, (err, svg) => (err ? rej(err) : res(svg)))
@@ -95,7 +93,7 @@ export async function ToSVG(outDir: string, inPath: string, name: string) {
 
 export async function ToBMP(outDir: string, inPath: string, name: string) {
     const image = await loadSharpInstance(inPath);
-    const safeName = sanitizeFileName(name);
+    const safeName = SanitizeFileName(name);
     const finalPath = path.join(outDir, `${safeName}.bmp`);
     await bmp.sharpToBmp(image, finalPath);
     return finalPath;
@@ -103,7 +101,7 @@ export async function ToBMP(outDir: string, inPath: string, name: string) {
 
 export async function ToTIFF(outDir: string, inPath: string, name: string) {
     const image = await Jimp.read(inPath);
-    const safeName = sanitizeFileName(name);
+    const safeName = SanitizeFileName(name);
     const finalPath = path.join(outDir, `${safeName}.tiff`);
     await image.write(finalPath as never, undefined);
     return finalPath;
@@ -111,7 +109,7 @@ export async function ToTIFF(outDir: string, inPath: string, name: string) {
 
 export async function ToICO(outDir: string, inPath: string, name: string) {
     const image = await loadSharpInstance(inPath);
-    const safeName = sanitizeFileName(name);
+    const safeName = SanitizeFileName(name);
     const finalPath = path.join(outDir, `${safeName}.ico`);
     return ico.sharpsToIco([image], finalPath);
 }

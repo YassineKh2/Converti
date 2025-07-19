@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/sonner"
 
 import './index.css'
 
-import './demos/ipc'
 
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
