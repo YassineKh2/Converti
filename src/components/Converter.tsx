@@ -33,13 +33,18 @@ export default function FileConverter() {
         const files = Array.from(e.dataTransfer.files)
         if (files.length > 0) {
             const file = files[0]
-            const category = getFileCategory(file.type)
+            let FileType = file.type
+
+            // Unique case for 7Z Format
+            if(file.name.includes("7z")) FileType = "7z"
+
+            const category = getFileCategory(FileType)
 
             setUploadedFile({
                 file,
                 name: file.name,
                 size: formatFileSize(file.size),
-                type: file.type,
+                type: FileType,
                 category,
                 path:''
             })
