@@ -1,8 +1,9 @@
-import { spawn } from 'node:child_process';
+import {spawn} from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
-import { SanitizeFileName } from './SanitizeFileName';
+import {SanitizeFileName} from './SanitizeFileName';
 import {get7ZIP} from "./Get7ZIP";
+import * as unzipper from "unzipper";
 
 function run7zCommand(args: string[]): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -17,20 +18,47 @@ function run7zCommand(args: string[]): Promise<void> {
     });
 }
 
-export async function To7Z(outDir: string, inPath: string, name: string) {
+async function ExtractZIP(inPath:string, tempFolder:string){
+    const directory = await unzipper.Open.file(inPath);
+    return await directory.extract({ path: tempFolder })
+}
+
+async function ArchiveFile(
+    outDir: string,
+    inPath: string,
+    name: string,
+    format: "7z" | "zip" | "tar",
+    extension: string
+): Promise<string> {
     const safeName = SanitizeFileName(name);
-    const finalPath = path.join(outDir, `${safeName}.7z`);
+    const finalPath = path.join(outDir, `${safeName}.${format}`);
     const tempFolder = path.join(outDir, 'TempFolder');
 
-    fs.mkdirSync(tempFolder, { recursive: true });
+    fs.mkdirSync(tempFolder, {recursive: true});
 
+    console.log(extension)
     try {
-        await run7zCommand(['x', inPath, `-o${tempFolder}`]);
+        if (extension === ".zip")
+            await ExtractZIP(inPath, tempFolder)
+        else
+            await run7zCommand(['x', inPath, `-o${tempFolder}`]);
 
         await run7zCommand(['a', finalPath, `${tempFolder}\\*`]);
     } catch (error) {
         console.error('Error during 7z compression:', error);
     } finally {
-        fs.rmSync(tempFolder, { recursive: true, force: true });
+        fs.rmSync(tempFolder, {recursive: true, force: true});
     }
+
+}
+
+
+export async function To7Z(outDir: string, inPath: string, name: string, extension: string) {
+    return await ArchiveFile(outDir,inPath,name,"7z",extension)
+}
+export async function ToZIP(outDir: string, inPath: string, name: string, extension: string) {
+    return await ArchiveFile(outDir,inPath,name,"zip",extension)
+}
+export async function ToTAR(outDir: string, inPath: string, name: string, extension: string) {
+    return await ArchiveFile(outDir,inPath,name,"tar",extension)
 }

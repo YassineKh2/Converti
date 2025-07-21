@@ -11,7 +11,7 @@ import {getFFMPEG} from "../Helpers/GetFFMPEG";
 import { execFile } from 'child_process';
 import {ToAVI, ToFLV, ToM4V, ToMKV, ToMOV, ToMP4, ToWEBM, ToWMV} from "../Helpers/VideoConverters";
 import {ToAAC, ToFLAC, ToM4A, ToMP3, ToOGG, ToWAV, ToWMA} from "../Helpers/AudioConverters";
-import {To7Z, ToZIP} from "../Helpers/ArchiveCoverters";
+import {To7Z, ToTAR, ToZIP} from "../Helpers/ArchiveCoverters";
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -147,6 +147,7 @@ ipcMain.on('receive', async (_, arg) => {
     const FilePath = await SaveFileToTemp(tmpDir, uploadedFile.path, uploadedFile.name)
     const lastDotIndex = uploadedFile.name.lastIndexOf('.');
     const FileName = uploadedFile.name.slice(0, lastDotIndex);
+    const Extension =  path.extname(uploadedFile.name)
 
     switch (selectedFormat.toUpperCase()) {
         case "JPG":
@@ -241,13 +242,15 @@ ipcMain.on('receive', async (_, arg) => {
 
         // Archive formats
         case "ZIP":
-            // await ToZIP(tmpDir, FilePath, FileName)
+            await ToZIP(tmpDir, FilePath, FileName, Extension)
             break;
         case "RAR":
         case "7Z":
-            await To7Z(tmpDir, FilePath, FileName)
+            await To7Z(tmpDir, FilePath, FileName, Extension)
             break;
         case "TAR":
+            await ToTAR(tmpDir, FilePath, FileName, Extension)
+            break;
         case "GZ":
         case "BZ2":
 
