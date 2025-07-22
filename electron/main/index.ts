@@ -11,7 +11,7 @@ import {getFFMPEG} from "../Helpers/GetFFMPEG";
 import { execFile } from 'child_process';
 import {ToAVI, ToFLV, ToM4V, ToMKV, ToMOV, ToMP4, ToWEBM, ToWMV} from "../Helpers/VideoConverters";
 import {ToAAC, ToFLAC, ToM4A, ToMP3, ToOGG, ToWAV, ToWMA} from "../Helpers/AudioConverters";
-import {To7Z, ToTAR, ToZIP} from "../Helpers/ArchiveCoverters";
+import {To7Z, ToBZ2, ToGZ, ToRAR, ToTAR, ToZIP} from "../Helpers/ArchiveCoverters";
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -245,6 +245,8 @@ ipcMain.on('receive', async (_, arg) => {
             await ToZIP(tmpDir, FilePath, FileName, Extension)
             break;
         case "RAR":
+            await ToRAR(tmpDir, FilePath, FileName, Extension)
+            break;
         case "7Z":
             await To7Z(tmpDir, FilePath, FileName, Extension)
             break;
@@ -252,7 +254,11 @@ ipcMain.on('receive', async (_, arg) => {
             await ToTAR(tmpDir, FilePath, FileName, Extension)
             break;
         case "GZ":
+            await ToGZ(tmpDir, FilePath, FileName, Extension)
+            break;
         case "BZ2":
+            await ToBZ2(tmpDir, FilePath, FileName, Extension)
+            break;
 
         // Other formats
         case "JSON":

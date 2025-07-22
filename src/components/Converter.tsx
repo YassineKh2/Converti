@@ -35,8 +35,9 @@ export default function FileConverter() {
             const file = files[0]
             let FileType = file.type
 
-            // Unique case for 7Z Format
+            // Unique case for 7Z & RAR Format
             if(file.name.includes("7z")) FileType = "7z"
+            if(file.name.includes("rar")) FileType = "rar"
 
             const category = getFileCategory(FileType)
 
