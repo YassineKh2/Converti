@@ -7,11 +7,10 @@ import fs from 'node:fs'
 import {UploadedFile as UploadedFileType} from "@/type/UploadedFile";
 import {SaveFileToTemp} from "../Helpers/SaveFile";
 import {ToAVIF, ToBMP, ToGIF, ToICO, ToJPEG, ToJPG, ToPNG, ToSVG, ToTIFF, ToWEBP} from "../Helpers/ImagesConverter";
-import {getFFMPEG} from "../Helpers/GetFFMPEG";
-import { execFile } from 'child_process';
 import {ToAVI, ToFLV, ToM4V, ToMKV, ToMOV, ToMP4, ToWEBM, ToWMV} from "../Helpers/VideoConverters";
 import {ToAAC, ToFLAC, ToM4A, ToMP3, ToOGG, ToWAV, ToWMA} from "../Helpers/AudioConverters";
-import {To7Z, ToZIP} from "../Helpers/ArchiveCoverters";
+import {To7Z, ToBZ2, ToGZ, ToRAR, ToTAR, ToZIP} from "../Helpers/ArchiveCoverters";
+import {ToDOCX, ToEPUB, ToHTML, ToODT, ToPDF, ToRTF, ToTXT} from "../Helpers/DocumentConverter";
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -147,6 +146,7 @@ ipcMain.on('receive', async (_, arg) => {
     const FilePath = await SaveFileToTemp(tmpDir, uploadedFile.path, uploadedFile.name)
     const lastDotIndex = uploadedFile.name.lastIndexOf('.');
     const FileName = uploadedFile.name.slice(0, lastDotIndex);
+    const Extension =  path.extname(uploadedFile.name)
 
     switch (selectedFormat.toUpperCase()) {
         case "JPG":
@@ -232,24 +232,46 @@ ipcMain.on('receive', async (_, arg) => {
 
         // Document formats
         case "PDF":
+            await ToPDF(tmpDir, FilePath, FileName)
+            break;
         case "DOCX":
+            await ToDOCX(tmpDir, FilePath, FileName)
+            break;
         case "TXT":
+            await ToTXT(tmpDir, FilePath, FileName)
+            break;
         case "RTF":
+            await ToRTF(tmpDir, FilePath, FileName)
+            break;
         case "ODT":
+            await ToODT(tmpDir, FilePath, FileName)
+            break;
         case "HTML":
+            await ToHTML(tmpDir, FilePath, FileName)
+            break;
         case "EPUB":
+            await ToEPUB(tmpDir, FilePath, FileName)
+            break;
 
         // Archive formats
         case "ZIP":
-            // await ToZIP(tmpDir, FilePath, FileName)
+            await ToZIP(tmpDir, FilePath, FileName, Extension)
             break;
         case "RAR":
+            await ToRAR(tmpDir, FilePath, FileName, Extension)
+            break;
         case "7Z":
-            await To7Z(tmpDir, FilePath, FileName)
+            await To7Z(tmpDir, FilePath, FileName, Extension)
             break;
         case "TAR":
+            await ToTAR(tmpDir, FilePath, FileName, Extension)
+            break;
         case "GZ":
+            await ToGZ(tmpDir, FilePath, FileName, Extension)
+            break;
         case "BZ2":
+            await ToBZ2(tmpDir, FilePath, FileName, Extension)
+            break;
 
         // Other formats
         case "JSON":
