@@ -1,195 +1,827 @@
-import {ChangeEvent, DragEvent, useCallback, useState} from "react"
-import {Upload, X} from "lucide-react"
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
-import {Button} from "@/components/ui/button"
-import {Badge} from "@/components/ui/badge"
-import {Separator} from "@/components/ui/separator"
-import {UploadedFile as UploadedFileType} from "@/type/UploadedFile";
-import {getFileCategory} from "@/Helpers/getFileCategory";
-import {formatFileSize} from "@/Helpers/formatFileSize";
-import {getConversionOptions} from "@/Helpers/getConversionOptions";
-import {getFileIcon} from "@/Helpers/getFileIcon";
-import {toast} from "sonner"
+import { ChangeEvent, DragEvent, useCallback, useMemo, useState } from "react";
+import {
+  Cog,
+  Download,
+  Globe,
+  Package,
+  RotateCcw,
+  Trash2,
+  Upload,
+  User,
+  X,
+  Zap,
+  Settings as SettingsIcon,
+} from "lucide-react";
+import { toast } from "sonner";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+  FileGroup,
+  UploadedFile as UploadedFileType,
+} from "@/type/UploadedFile";
+import { getFileCategory } from "@/Helpers/getFileCategory";
+import { formatFileSize } from "@/Helpers/formatFileSize";
+import {
+  getConversionOptions,
+  getDefaultFormat,
+  getArchiveOptions,
+} from "@/Helpers/getConversionOptions";
+import { getFileIcon } from "@/Helpers/getFileIcon";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Settings } from "@/components/Settings";
+import { AppSettings } from "@/type/AppSettings";
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
+import { getCategoryColor } from "@/Helpers/getCategoryColor";
 
 export default function FileConverter() {
-    const [uploadedFile, setUploadedFile] = useState<UploadedFileType | null>(null)
-    const [isDragOver, setIsDragOver] = useState(false)
-    const [selectedFormat, setSelectedFormat] = useState<string>("")
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFileType[]>([]);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [settings, setSettings] = useState<AppSettings>({} as AppSettings);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [globalFormats, setGlobalFormats] = useState<Record<string, string>>(
+    {},
+  );
+  const [selectedArchiveFormat, setSelectedArchiveFormat] =
+    useState<string>("");
+  const handleDragOver = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  }, []);
 
-    const handleDragOver = useCallback((e: DragEvent) => {
-        e.preventDefault()
-        setIsDragOver(true)
-    }, [])
+  const handleDragLeave = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  }, []);
 
-    const handleDragLeave = useCallback((e: DragEvent) => {
-        e.preventDefault()
-        setIsDragOver(false)
-    }, [])
+  const processFiles = (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
+    const newFiles: UploadedFileType[] = fileArray.map((file) => {
+      let FileType = file.type;
 
-    const handleDrop = useCallback((e: DragEvent) => {
-        e.preventDefault()
-        setIsDragOver(false)
+      if (file.name.includes("7z")) FileType = "7z";
+      if (file.name.includes("rar")) FileType = "rar";
+      if (file.name.includes("rtf")) FileType = "document | rtf";
+      if (file.name.includes("epub")) FileType = "document | epub";
 
-        const files = Array.from(e.dataTransfer.files)
-        if (files.length > 0) {
-            const file = files[0]
-            let FileType = file.type
+      const category = getFileCategory(FileType);
 
-            // Unique case for some formats
-            if(file.name.includes("7z")) FileType = "7z"
-            if(file.name.includes("rar")) FileType = "rar"
-            if(file.name.includes("rtf")) FileType = "document | rtf"
+      return {
+        id: Math.random().toString(36).slice(2, 9),
+        file,
+        name: file.name,
+        size: formatFileSize(file.size),
+        type: FileType,
+        category: category,
+        selectedFormat: "",
+        isConverting: false,
+        path: "",
+      };
+    });
 
-            const category = getFileCategory(FileType)
+    setUploadedFiles((prev) => [...prev, ...newFiles]);
+  };
 
-            setUploadedFile({
-                file,
-                name: file.name,
-                size: formatFileSize(file.size),
-                type: FileType,
-                category,
-                path:''
-            })
-            setSelectedFormat("")
-        }
-    }, [])
+  const handleDrop = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
 
-    const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files
-        if (files && files.length > 0) {
-            const file = files[0]
-            const category = getFileCategory(file.type)
+    const files = e.dataTransfer.files;
 
-            setUploadedFile({
-                file,
-                name: file.name,
-                size: formatFileSize(file.size),
-                type: file.type,
-                category,
-                path:''
-            })
-            setSelectedFormat("")
-        }
+    if (files.length > 0) {
+      processFiles(files);
+    }
+  }, []);
+
+  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+
+    if (files && files.length > 0) {
+      processFiles(files);
+    }
+    e.target.value = "";
+  };
+
+  const fileGroups: FileGroup[] = useMemo(() => {
+    const groups: Record<string, UploadedFileType[]> = {};
+
+    uploadedFiles.forEach((file) => {
+      if (!groups[file.category]) {
+        groups[file.category] = [];
+      }
+      groups[file.category].push(file);
+    });
+
+    return Object.entries(groups).map(([category, files]) => ({
+      category,
+      files,
+      defaultFormat: getDefaultFormat(category),
+      globalFormat: globalFormats[category] || "",
+      icon: getFileIcon(category),
+      color: getCategoryColor(category),
+    }));
+  }, [uploadedFiles, globalFormats]);
+
+  const setGlobalFormat = (category: string, format: string) => {
+    setGlobalFormats((prev) => ({
+      ...prev,
+      [category]: format,
+    }));
+  };
+
+  const removeGlobalFormat = (category: string) => {
+    setGlobalFormats((prev) => {
+      const newFormats = { ...prev };
+
+      delete newFormats[category];
+
+      return newFormats;
+    });
+  };
+
+  const updateFileFormat = (fileId: string, format: string) => {
+    setUploadedFiles((prev) =>
+      prev.map((file) =>
+        file.id === fileId ? { ...file, selectedFormat: format } : file,
+      ),
+    );
+  };
+
+  const removeFile = (fileId: string) => {
+    setUploadedFiles((prev) => prev.filter((file) => file.id !== fileId));
+  };
+
+  const convertFile = async (fileId: string) => {
+    const uploadedFile = uploadedFiles.find((f) => f.id === fileId);
+
+    if (!uploadedFile) return;
+
+    if (settings.confirmBeforeConvert) {
+      // TO DO Make confirmation UI
+      const confirmed = true;
+
+      if (!confirmed) return;
     }
 
-    const handleConvert = async () => {
-        if (uploadedFile && selectedFormat) {
-            toast("Hold tight , your conversion has started !")
-            // showFilePath is showing as undefined
-            //@ts-ignore
-            uploadedFile.path = await window.ipcRenderer.showFilePath(uploadedFile.file)
-            window.ipcRenderer.send('receive', {uploadedFile , selectedFormat});
-        }
+    setUploadedFiles((prev) =>
+      prev.map((f) => (f.id === fileId ? { ...f, isConverting: true } : f)),
+    );
+
+    toast("Hold tight , your conversion has started !");
+    // showFilePath is showing as undefined
+    //@ts-ignore
+    uploadedFile.path = await window.ipcRenderer.showFilePath(
+      uploadedFile.file,
+    );
+    const selectedFormat = uploadedFile.selectedFormat;
+
+    window.ipcRenderer.send("receive", { uploadedFile, selectedFormat });
+
+    if (settings.notifications) {
+      toast(
+        `${uploadedFile.name} converted to ${uploadedFile.selectedFormat} format!`,
+      );
     }
 
-    const clearFile = () => {
-        setUploadedFile(null)
-        setSelectedFormat("")
+    setUploadedFiles((prev) =>
+      prev.map((f) => (f.id === fileId ? { ...f, isConverting: false } : f)),
+    );
+  };
+
+  const globalConvertGroup = async (category: string) => {
+    const globalFormat = globalFormats[category];
+
+    if (!globalFormat) return;
+
+    const groupFiles = uploadedFiles.filter(
+      (file) => file.category === category,
+    );
+
+    if (groupFiles.length === 0) return;
+
+    if (settings.confirmBeforeConvert) {
+      // TO DO Make confirmation UI
+      const confirmed = true;
+
+      if (!confirmed) return;
     }
 
-    const conversionOptions = uploadedFile ? getConversionOptions(uploadedFile.category, uploadedFile.type) : []
+    setUploadedFiles((prev) =>
+      prev.map((file) =>
+        file.category === category
+          ? { ...file, isConverting: true, selectedFormat: globalFormat }
+          : file,
+      ),
+    );
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-            <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-2">CONVERTI</h1>
-                    <p className="text-gray-600">Drag and drop any file to convert it to different formats</p>
-                </div>
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
-                {!uploadedFile ? (
-                    <Card className="border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors">
-                        <CardContent className="p-12">
-                            <div
-                                className={`text-center ${isDragOver ? "bg-blue-50 border-blue-300" : ""} rounded-lg p-8 transition-colors`}
-                                onDragOver={handleDragOver}
-                                onDragLeave={handleDragLeave}
-                                onDrop={handleDrop}
-                            >
-                                <Upload className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                                <h3 className="text-xl font-semibold text-gray-700 mb-2">Drop your file here</h3>
-                                <p className="text-gray-500 mb-4">Support for images, videos, audio, documents, and more</p>
-                                <div className="flex items-center justify-center">
-                                    <Button asChild>
-                                        <label htmlFor="file-upload" className="cursor-pointer">
-                                            Choose File
-                                            <input id="file-upload" type="file" className="hidden" onChange={handleFileSelect} />
-                                        </label>
-                                    </Button>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <div className="space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <div className="flex items-center justify-between">
-                                    <CardTitle className="flex items-center gap-3">
-                                        {getFileIcon(uploadedFile.category)}
-                                        Uploaded File
-                                    </CardTitle>
-                                    <Button variant="ghost" size="icon" onClick={clearFile}>
-                                        <X className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                    <div>
-                                        <p className="font-medium text-gray-900">{uploadedFile.name}</p>
-                                        <p className="text-sm text-gray-500">
-                                            {uploadedFile.size} • {uploadedFile.type}
-                                        </p>
-                                    </div>
-                                    <Badge variant="secondary" className="capitalize">
-                                        {uploadedFile.category}
-                                    </Badge>
-                                </div>
-                            </CardContent>
-                        </Card>
+    if (settings.notifications) {
+      toast(
+        `Successfully converted ${groupFiles.length} ${category} files to ${globalFormat} format!`,
+      );
+    }
 
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Choose Conversion Format</CardTitle>
-                                <CardDescription>Select the format you want to convert your file to</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-6">
-                                    {conversionOptions.map((format) => (
-                                        <Button
-                                            key={format}
-                                            variant={selectedFormat  === format  ? "default" : "outline"}
-                                            className="h-12"
-                                            onClick={() => setSelectedFormat(format)}
-                                        >
-                                            {format}
-                                        </Button>
-                                    ))}
-                                </div>
+    setUploadedFiles((prev) =>
+      prev.map((file) =>
+        file.category === category ? { ...file, isConverting: false } : file,
+      ),
+    );
+  };
 
-                                {selectedFormat && (
-                                    <>
-                                        <Separator className="my-4" />
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="font-medium">Convert to {selectedFormat}</p>
-                                                <p className="text-sm text-gray-500">
-                                                    {uploadedFile.name} → {uploadedFile.name.replace(/\.[^/.]+$/, "")}.
-                                                    {selectedFormat.toLowerCase()}
-                                                </p>
-                                            </div>
-                                            <Button onClick={handleConvert} size="lg">
-                                                Convert File
-                                            </Button>
-                                        </div>
-                                    </>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </div>
-                )}
-            </div>
+  const convertAllFiles = async () => {
+    const updatedFiles = uploadedFiles.map((file) => {
+      const globalFormat = globalFormats[file.category];
+
+      if (globalFormat && !file.selectedFormat) {
+        return { ...file, selectedFormat: globalFormat };
+      }
+
+      return file;
+    });
+
+    const filesToConvert = updatedFiles.filter(
+      (file) => file.selectedFormat && !file.isConverting,
+    );
+
+    if (filesToConvert.length === 0) {
+      toast("Please select formats for the files you want to convert.");
+
+      return;
+    }
+
+    if (settings.confirmBeforeConvert) {
+      // TO DO Make confirmation UI
+      const confirmed = true;
+
+      if (!confirmed) return;
+    }
+
+    setUploadedFiles(
+      updatedFiles.map((file) =>
+        file.selectedFormat ? { ...file, isConverting: true } : file,
+      ),
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    if (settings.notifications) {
+      toast(`Successfully converted ${filesToConvert.length} files!`);
+    }
+
+    setUploadedFiles((prev) =>
+      prev.map((file) => ({ ...file, isConverting: false })),
+    );
+  };
+
+  const archiveAllFiles = async () => {
+    if (!selectedArchiveFormat) return;
+
+    if (settings.confirmBeforeConvert) {
+      // TO DO Make confirmation UI
+      const confirmed = true;
+
+      if (!confirmed) return;
+    }
+
+    setUploadedFiles((prev) =>
+      prev.map((file) => ({ ...file, isConverting: true })),
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    if (settings.notifications) {
+      toast(
+        `Successfully archived ${uploadedFiles.length} files into ${selectedArchiveFormat} format!`,
+      );
+    }
+
+    setUploadedFiles((prev) =>
+      prev.map((file) => ({ ...file, isConverting: false })),
+    );
+  };
+
+  const clearAllFiles = () => {
+    setUploadedFiles([]);
+    setGlobalFormats({});
+    setSelectedArchiveFormat("");
+  };
+
+  const toggleGroupExpansion = (category: string) => {
+    setExpandedGroups((prev) => {
+      const newSet = new Set(prev);
+
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+
+      return newSet;
+    });
+  };
+
+  const selectedFilesCount = useMemo(() => {
+    return uploadedFiles.filter((file) => {
+      const globalFormat = globalFormats[file.category];
+
+      return file.selectedFormat || globalFormat;
+    }).length;
+  }, [uploadedFiles, globalFormats]);
+
+  const convertingFilesCount = uploadedFiles.filter(
+    (file) => file.isConverting,
+  ).length;
+
+  const hasMultipleFiles = uploadedFiles.length > 1;
+  const totalFileCount = uploadedFiles.length;
+
+  const shouldShowIndividualMode = (group: FileGroup) => {
+    return group.files.length === 1 || !group.globalFormat;
+  };
+
+  // const handleConvert = async () => {
+  //   if (uploadedFile && selectedFormat) {
+  //     toast("Hold tight , your conversion has started !");
+  //     // showFilePath is showing as undefined
+  //     //@ts-ignore
+  //     uploadedFile.path = await window.ipcRenderer.showFilePath(
+  //       uploadedFile.file,
+  //     );
+  //     window.ipcRenderer.send("receive", { uploadedFile, selectedFormat });
+  //   }
+  // };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <h1 className="text-4xl font-bold text-gray-900">
+              Smart File Converter
+            </h1>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  className="h-10 w-10 bg-transparent"
+                  size="icon"
+                  variant="outline"
+                >
+                  <Cog className="h-5 w-5" />
+                </Button>
+              </DialogTrigger>
+              <Settings settings={settings} onSettingsChange={setSettings} />
+            </Dialog>
+          </div>
+          <p className="text-gray-600">
+            Global format selection, individual conversion, or archive multiple
+            files
+          </p>
         </div>
-    )
+
+        <Card className="border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors mb-6">
+          <CardContent className="p-8">
+            <div
+              className={`text-center ${isDragOver ? "bg-blue-50 border-blue-300" : ""} rounded-lg p-6 transition-colors`}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+            >
+              <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                Drop multiple files here or click to browse
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Convert files individually, set global formats, or archive them
+              </p>
+              <div className="flex items-center justify-center gap-4">
+                <Button asChild>
+                  <label className="cursor-pointer" htmlFor="file-upload">
+                    Choose Files
+                    <input
+                      multiple
+                      className="hidden"
+                      id="file-upload"
+                      type="file"
+                      onChange={handleFileSelect}
+                    />
+                  </label>
+                </Button>
+                {uploadedFiles.length > 0 && (
+                  <Button variant="outline" onClick={clearAllFiles}>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Clear All
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {hasMultipleFiles && (
+          <Card className="mb-6 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 border-2">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Package className="h-6 w-6 text-purple-600" />
+                  <div>
+                    <CardTitle className="text-purple-900">
+                      Archive All Files
+                    </CardTitle>
+                    <CardDescription className="text-purple-700">
+                      Combine all {totalFileCount} files into a single archive
+                    </CardDescription>
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-purple-800 mb-2 block">
+                    Choose archive format:
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {getArchiveOptions().map((format) => (
+                      <Button
+                        key={format}
+                        className="h-8 text-xs"
+                        disabled={convertingFilesCount > 0}
+                        size="sm"
+                        variant={
+                          selectedArchiveFormat === format
+                            ? "default"
+                            : "outline"
+                        }
+                        onClick={() => setSelectedArchiveFormat(format)}
+                      >
+                        {format}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                {selectedArchiveFormat && (
+                  <div className="flex items-center justify-between pt-2 border-t border-purple-200">
+                    <p className="text-sm text-purple-800">
+                      Archive as: files.{selectedArchiveFormat.toLowerCase()}
+                    </p>
+                    <Button
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                      disabled={convertingFilesCount > 0}
+                      onClick={archiveAllFiles}
+                    >
+                      <Package className="h-4 w-4 mr-2" />
+                      Archive All Files
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {fileGroups.length > 0 && (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>
+                      Uploaded Files ({uploadedFiles.length})
+                    </CardTitle>
+                    <CardDescription>
+                      {fileGroups.length} file type
+                      {fileGroups.length !== 1 ? "s" : ""} detected
+                      {selectedFilesCount > 0 &&
+                        ` • ${selectedFilesCount} files ready for conversion`}
+                      {convertingFilesCount > 0 &&
+                        ` • ${convertingFilesCount} converting...`}
+                      {selectedArchiveFormat &&
+                        ` • Archive format: ${selectedArchiveFormat}`}
+                    </CardDescription>
+                  </div>
+                  {selectedFilesCount > 0 && (
+                    <Button
+                      disabled={convertingFilesCount > 0}
+                      size="lg"
+                      onClick={convertAllFiles}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Convert All ({selectedFilesCount})
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+            </Card>
+
+            {fileGroups.map((group) => {
+              const isExpanded = expandedGroups.has(group.category);
+              const convertingInGroup = group.files.filter(
+                (f) => f.isConverting,
+              ).length;
+              const conversionOptions = getConversionOptions(
+                group.category,
+                "",
+              );
+              const hasGlobalFormat = group.globalFormat !== "";
+              const isSingleFile = group.files.length === 1;
+              const showIndividualMode = shouldShowIndividualMode(group);
+
+              return (
+                <Card
+                  key={group.category}
+                  className={`${group.color} border-2`}
+                >
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {group.icon}
+                        <div>
+                          <CardTitle className="capitalize flex items-center gap-2">
+                            {group.category} Files ({group.files.length})
+                            {convertingInGroup > 0 && (
+                              <Badge className="text-xs" variant="secondary">
+                                {convertingInGroup} converting...
+                              </Badge>
+                            )}
+                            {hasGlobalFormat && (
+                              <Badge className="text-xs bg-green-100 text-green-800 border-green-300">
+                                <Globe className="h-3 w-3 mr-1" />
+                                Global: {group.globalFormat}
+                              </Badge>
+                            )}
+                            {isSingleFile && (
+                              <Badge className="text-xs" variant="outline">
+                                Single File
+                              </Badge>
+                            )}
+                          </CardTitle>
+                          <CardDescription>
+                            {isSingleFile
+                              ? "Single file - choose format below"
+                              : hasGlobalFormat
+                                ? `All files will convert to ${group.globalFormat}`
+                                : "Set a global format for bulk conversion"}
+                          </CardDescription>
+                        </div>
+                      </div>
+                      {!isSingleFile && (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => toggleGroupExpansion(group.category)}
+                        >
+                          <SettingsIcon className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+
+                    {!isSingleFile && (
+                      <div className="mt-4 p-4 bg-white/70 rounded-lg border-2 border-dashed border-gray-300">
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                            <Globe className="h-4 w-4" />
+                            Global Format Selection:
+                            {hasGlobalFormat && (
+                              <Button
+                                className="ml-auto h-6 text-xs"
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  removeGlobalFormat(group.category)
+                                }
+                              >
+                                <RotateCcw className="h-3 w-3 mr-1" />
+                                Remove Global
+                              </Button>
+                            )}
+                          </div>
+
+                          {!hasGlobalFormat ? (
+                            <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-2">
+                              {conversionOptions.map((format) => (
+                                <Button
+                                  key={format}
+                                  className="h-8 text-xs bg-transparent"
+                                  disabled={convertingInGroup > 0}
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() =>
+                                    setGlobalFormat(group.category, format)
+                                  }
+                                >
+                                  {format}
+                                </Button>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-2">
+                                <Badge className="bg-green-100 text-green-800 border-green-300">
+                                  Selected: {group.globalFormat}
+                                </Badge>
+                              </div>
+                              <Button
+                                className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+                                disabled={convertingInGroup > 0}
+                                onClick={() =>
+                                  globalConvertGroup(group.category)
+                                }
+                              >
+                                <Zap className="h-4 w-4 mr-2" />
+                                Convert All to {group.globalFormat} (
+                                {group.files.length})
+                              </Button>
+                            </div>
+                          )}
+
+                          {hasGlobalFormat && (
+                            <p className="text-xs text-gray-600">
+                              This will override any individual format
+                              selections for this file type.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </CardHeader>
+
+                  <Collapsible
+                    open={isSingleFile || isExpanded}
+                    onOpenChange={() => toggleGroupExpansion(group.category)}
+                  >
+                    <CollapsibleContent>
+                      <CardContent className="pt-0">
+                        {!isSingleFile && <Separator className="mb-4" />}
+                        <div className="space-y-4">
+                          {!isSingleFile && (
+                            <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                              <User className="h-4 w-4" />
+                              Individual file conversion options:
+                              {hasGlobalFormat && (
+                                <Badge className="text-xs" variant="outline">
+                                  Overridden by global format
+                                </Badge>
+                              )}
+                            </div>
+                          )}
+
+                          {group.files.map((uploadedFile) => {
+                            const effectiveFormat = hasGlobalFormat
+                              ? group.globalFormat
+                              : uploadedFile.selectedFormat;
+                            const isOverridden =
+                              hasGlobalFormat &&
+                              uploadedFile.selectedFormat !==
+                                group.globalFormat;
+
+                            return (
+                              <Card
+                                key={uploadedFile.id}
+                                className="bg-white/50"
+                              >
+                                <CardContent className="p-4">
+                                  <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-3">
+                                      {getFileIcon(uploadedFile.category, "sm")}
+                                      <div>
+                                        <h4 className="font-medium text-gray-900 text-sm">
+                                          {uploadedFile.name}
+                                        </h4>
+                                        <p className="text-xs text-gray-500">
+                                          {uploadedFile.size}
+                                          {effectiveFormat && (
+                                            <span className="ml-2">
+                                              → {effectiveFormat}
+                                              {isOverridden && (
+                                                <Badge
+                                                  className="ml-1 text-xs"
+                                                  variant="outline"
+                                                >
+                                                  Global
+                                                </Badge>
+                                              )}
+                                            </span>
+                                          )}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <Button
+                                      className="h-6 w-6"
+                                      disabled={uploadedFile.isConverting}
+                                      size="icon"
+                                      variant="ghost"
+                                      onClick={() =>
+                                        removeFile(uploadedFile.id)
+                                      }
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+
+                                  <div className="space-y-3">
+                                    <div
+                                      className={
+                                        hasGlobalFormat && !isSingleFile
+                                          ? "opacity-50"
+                                          : ""
+                                      }
+                                    >
+                                      <label className="text-xs font-medium text-gray-700 mb-2 block">
+                                        {isSingleFile
+                                          ? "Choose format:"
+                                          : `Individual format ${hasGlobalFormat ? "(overridden)" : ""}:`}
+                                      </label>
+                                      <div
+                                        className={`grid gap-2 ${
+                                          isSingleFile
+                                            ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-6"
+                                            : "grid-cols-3 md:grid-cols-6 lg:grid-cols-8"
+                                        }`}
+                                      >
+                                        {conversionOptions.map((format) => (
+                                          <Button
+                                            key={format}
+                                            className={
+                                              isSingleFile
+                                                ? "h-10 text-sm px-4"
+                                                : "h-6 text-xs px-2"
+                                            }
+                                            disabled={
+                                              uploadedFile.isConverting ||
+                                              (hasGlobalFormat && !isSingleFile)
+                                            }
+                                            size={
+                                              isSingleFile ? "default" : "sm"
+                                            }
+                                            variant={
+                                              uploadedFile.selectedFormat ===
+                                              format
+                                                ? "default"
+                                                : "outline"
+                                            }
+                                            onClick={() =>
+                                              updateFileFormat(
+                                                uploadedFile.id,
+                                                format,
+                                              )
+                                            }
+                                          >
+                                            {format}
+                                          </Button>
+                                        ))}
+                                      </div>
+                                    </div>
+
+                                    {effectiveFormat &&
+                                      (isSingleFile || !hasGlobalFormat) && (
+                                        <div className="flex items-center justify-between pt-2 border-t">
+                                          <p className="text-xs text-gray-600">
+                                            Convert to {effectiveFormat}
+                                          </p>
+                                          <Button
+                                            className={
+                                              isSingleFile
+                                                ? "h-8 text-sm"
+                                                : "h-6 text-xs"
+                                            }
+                                            disabled={uploadedFile.isConverting}
+                                            size={
+                                              isSingleFile ? "default" : "sm"
+                                            }
+                                            onClick={() =>
+                                              convertFile(uploadedFile.id)
+                                            }
+                                          >
+                                            {uploadedFile.isConverting
+                                              ? "Converting..."
+                                              : "Convert"}
+                                          </Button>
+                                        </div>
+                                      )}
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
+                        </div>
+                      </CardContent>
+                    </CollapsibleContent>
+                  </Collapsible>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

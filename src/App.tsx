@@ -1,12 +1,12 @@
-import './App.css'
+import "./App.css";
 import FileConverter from "@/components/Converter";
 
 function App() {
   return (
-    <div className='App'>
-        <FileConverter />
+    <div className="App">
+      <FileConverter />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
