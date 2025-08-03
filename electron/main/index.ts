@@ -187,22 +187,13 @@ ipcMain.handle("get-temp-folder", () => {
   return tmpDir;
 });
 
-ipcMain.on("receive", async (_, arg) => {
-  const {
-    uploadedFile,
-    selectedFormat,
-  }: { uploadedFile: UploadedFileType; selectedFormat: string } = arg;
+ipcMain.on("convert", async (_, arg) => {
+  const { uploadedFile }: { uploadedFile: UploadedFileType } = arg;
 
-  const FilePath = await SaveFileToTemp(
-    tmpDir,
-    uploadedFile.path,
-    uploadedFile.name,
-  );
+  const { path: FilePath, selectedFormat } = uploadedFile;
   const lastDotIndex = uploadedFile.name.lastIndexOf(".");
   const FileName = uploadedFile.name.slice(0, lastDotIndex);
   const Extension = path.extname(uploadedFile.name);
-
-  console.log(selectedFormat);
 
   switch (selectedFormat.toUpperCase()) {
     case "JPG":
@@ -335,4 +326,10 @@ ipcMain.on("receive", async (_, arg) => {
     case "CSV":
     case "XML":
   }
+});
+
+ipcMain.handle("saveFile", async (_, arg) => {
+  const { path, name }: { path: string; name: string } = arg;
+
+  return await SaveFileToTemp(tmpDir, path, name);
 });

@@ -5,12 +5,12 @@ import {
   Globe,
   Package,
   RotateCcw,
+  Settings as SettingsIcon,
   Trash2,
   Upload,
   User,
   X,
   Zap,
-  Settings as SettingsIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -31,9 +31,9 @@ import {
 import { getFileCategory } from "@/Helpers/getFileCategory";
 import { formatFileSize } from "@/Helpers/formatFileSize";
 import {
+  getArchiveOptions,
   getConversionOptions,
   getDefaultFormat,
-  getArchiveOptions,
 } from "@/Helpers/getConversionOptions";
 import { getFileIcon } from "@/Helpers/getFileIcon";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
@@ -178,12 +178,15 @@ export default function FileConverter() {
     toast("Hold tight , your conversion has started !");
     // showFilePath is showing as undefined
     //@ts-ignore
-    uploadedFile.path = await window.ipcRenderer.showFilePath(
-      uploadedFile.file,
-    );
-    const selectedFormat = uploadedFile.selectedFormat;
+    const path = await window.ipcRenderer.showFilePath(uploadedFile.file);
+    const { name } = uploadedFile;
 
-    window.ipcRenderer.send("receive", { uploadedFile, selectedFormat });
+    uploadedFile.path = await window.ipcRenderer.invoke("saveFile", {
+      path,
+      name,
+    });
+
+    window.ipcRenderer.send("convert", { uploadedFile });
 
     if (settings.notifications) {
       toast(
@@ -214,15 +217,34 @@ export default function FileConverter() {
       if (!confirmed) return;
     }
 
-    setUploadedFiles((prev) =>
-      prev.map((file) =>
-        file.category === category
-          ? { ...file, isConverting: true, selectedFormat: globalFormat }
-          : file,
-      ),
-    );
+    let UploadedFiles: UploadedFileType[] = [];
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    setUploadedFiles((prev) =>
+      prev.map((file) => {
+        if (file.category === category) {
+          file.selectedFormat = globalFormat;
+          UploadedFiles.push(file);
+
+          return { ...file, isConverting: true, selectedFormat: globalFormat };
+        }
+
+        return file;
+      }),
+    );
+    toast("Hold tight , your conversion has started !");
+
+    for (const uploadedFile of UploadedFiles) {
+      //@ts-ignore
+      const path = await window.ipcRenderer.showFilePath(uploadedFile.file);
+
+      const { name } = uploadedFile;
+
+      uploadedFile.path = await window.ipcRenderer.invoke("saveFile", {
+        path,
+        name,
+      });
+      window.ipcRenderer.send("convert", { uploadedFile });
+    }
 
     if (settings.notifications) {
       toast(
@@ -623,7 +645,7 @@ export default function FileConverter() {
                               ))}
                             </div>
                           ) : (
-                            <div className="flex items-center gap-4">
+                            <div className="flex justify-between items-center gap-4">
                               <div className="flex items-center gap-2">
                                 <Badge className="bg-green-100 text-green-800 border-green-300">
                                   Selected: {group.globalFormat}
