@@ -293,7 +293,18 @@ export default function FileConverter() {
       ),
     );
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    for (const uploadedFile of updatedFiles) {
+      //@ts-ignore
+      const path = await window.ipcRenderer.showFilePath(uploadedFile.file);
+
+      const { name } = uploadedFile;
+
+      uploadedFile.path = await window.ipcRenderer.invoke("saveFile", {
+        path,
+        name,
+      });
+      window.ipcRenderer.send("convert", { uploadedFile });
+    }
 
     if (settings.notifications) {
       toast(`Successfully converted ${filesToConvert.length} files!`);
@@ -448,68 +459,6 @@ export default function FileConverter() {
           </CardContent>
         </Card>
 
-        {hasMultipleFiles && (
-          <Card className="mb-6 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 border-2">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Package className="h-6 w-6 text-purple-600" />
-                  <div>
-                    <CardTitle className="text-purple-900">
-                      Archive All Files
-                    </CardTitle>
-                    <CardDescription className="text-purple-700">
-                      Combine all {totalFileCount} files into a single archive
-                    </CardDescription>
-                  </div>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-purple-800 mb-2 block">
-                    Choose archive format:
-                  </p>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    {getArchiveOptions().map((format) => (
-                      <Button
-                        key={format}
-                        className="h-8 text-xs"
-                        disabled={convertingFilesCount > 0}
-                        size="sm"
-                        variant={
-                          selectedArchiveFormat === format
-                            ? "default"
-                            : "outline"
-                        }
-                        onClick={() => setSelectedArchiveFormat(format)}
-                      >
-                        {format}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-                {selectedArchiveFormat && (
-                  <div className="flex items-center justify-between pt-2 border-t border-purple-200">
-                    <p className="text-sm text-purple-800">
-                      Archive as: files.{selectedArchiveFormat.toLowerCase()}
-                    </p>
-                    <Button
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                      disabled={convertingFilesCount > 0}
-                      onClick={archiveAllFiles}
-                    >
-                      <Package className="h-4 w-4 mr-2" />
-                      Archive All Files
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {fileGroups.length > 0 && (
           <div className="space-y-6">
             <Card>
@@ -543,6 +492,70 @@ export default function FileConverter() {
                 </div>
               </CardHeader>
             </Card>
+
+            {hasMultipleFiles && (
+              <Card className="mb-6 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 border-2">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Package className="h-6 w-6 text-purple-600" />
+                      <div>
+                        <CardTitle className="text-purple-900">
+                          Archive All Files
+                        </CardTitle>
+                        <CardDescription className="text-purple-700">
+                          Combine all {totalFileCount} files into a single
+                          archive
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm font-medium text-purple-800 mb-2 block">
+                        Choose archive format:
+                      </p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        {getArchiveOptions().map((format) => (
+                          <Button
+                            key={format}
+                            className="h-8 text-xs"
+                            disabled={convertingFilesCount > 0}
+                            size="sm"
+                            variant={
+                              selectedArchiveFormat === format
+                                ? "default"
+                                : "outline"
+                            }
+                            onClick={() => setSelectedArchiveFormat(format)}
+                          >
+                            {format}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                    {selectedArchiveFormat && (
+                      <div className="flex items-center justify-between pt-2 border-t border-purple-200">
+                        <p className="text-sm text-purple-800">
+                          Archive as: files.
+                          {selectedArchiveFormat.toLowerCase()}
+                        </p>
+                        <Button
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                          disabled={convertingFilesCount > 0}
+                          onClick={archiveAllFiles}
+                        >
+                          <Package className="h-4 w-4 mr-2" />
+                          Archive All Files
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {fileGroups.map((group) => {
               const isExpanded = expandedGroups.has(group.category);
