@@ -9,6 +9,9 @@ export interface UploadedFile {
   category: string;
   selectedFormat: string;
   isConverting: boolean;
+  conversionStatus?: string;
+  conversionLogs?: string[];
+  conversionProgress?: number;
   path: string;
 }
 export interface FileGroup {

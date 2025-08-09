@@ -86,6 +86,7 @@ export function Settings({
           </CardHeader>
           <CardContent className="space-y-4">
             <RadioGroup
+              className="space-y-4"
               value={localSettings.saveLocation}
               onValueChange={(value: "ask" | "original" | "custom") =>
                 setLocalSettings({ ...localSettings, saveLocation: value })
@@ -93,28 +94,34 @@ export function Settings({
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem id="ask" value="ask" />
-                <Label className="flex-1" htmlFor="ask">
-                  <div className="font-medium">Ask Every Time</div>
-                  <div className="text-sm text-gray-500">
-                    Prompt to select save location for each conversion
+                <Label className="" htmlFor="ask">
+                  <div className="font-medium">
+                    Ask Every Time
+                    <div className="text-sm text-gray-500">
+                      Prompt to select save location for each conversion
+                    </div>
                   </div>
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem id="original" value="original" />
-                <Label className="flex-1" htmlFor="original">
-                  <div className="font-medium">Save to File Location</div>
-                  <div className="text-sm text-gray-500">
-                    Save converted files in the same directory as originals
+                <Label htmlFor="original">
+                  <div className="font-medium">
+                    Save to File Location
+                    <div className="text-sm text-gray-500">
+                      Save converted files in the same directory as originals
+                    </div>
                   </div>
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem id="custom" value="custom" />
                 <Label className="flex-1" htmlFor="custom">
-                  <div className="font-medium">Set Default Location</div>
-                  <div className="text-sm text-gray-500">
-                    Specify a default save location for all conversions
+                  <div className="font-medium">
+                    Set Default Location
+                    <div className="text-sm text-gray-500">
+                      Specify a default save location for all conversions
+                    </div>
                   </div>
                 </Label>
               </div>
@@ -155,7 +162,7 @@ export function Settings({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
+            <div className="space-y-2 flex justify-between items-baseline">
               <Label htmlFor="namingConvention">Naming Convention</Label>
               <Select
                 value={localSettings.namingConvention}
@@ -249,31 +256,6 @@ export function Settings({
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="progressDetail">Progress Detail Level</Label>
-              <Select
-                value={localSettings.progressDetail}
-                onValueChange={(value: "minimal" | "standard" | "detailed") =>
-                  setLocalSettings({ ...localSettings, progressDetail: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="minimal">
-                    Minimal - Basic progress only
-                  </SelectItem>
-                  <SelectItem value="standard">
-                    Standard - Progress with file names
-                  </SelectItem>
-                  <SelectItem value="detailed">
-                    Detailed - Full conversion information
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Auto-open Output Folder</Label>
@@ -308,6 +290,42 @@ export function Settings({
                   })
                 }
               />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="progressDetail">Progress Detail Level</Label>
+                <div className="text-sm text-gray-500">
+                  {localSettings.progressDetail === "minimal" &&
+                    "Minimal - Basic progress only"}
+                  {localSettings.progressDetail === "standard" &&
+                    "Standard - Progress with file names"}
+                  {localSettings.progressDetail === "detailed" &&
+                    "Detailed - Full conversion information"}
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <div />
+                <Select
+                  value={localSettings.progressDetail}
+                  onValueChange={(value: "minimal" | "standard" | "detailed") =>
+                    setLocalSettings({
+                      ...localSettings,
+                      progressDetail: value,
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="minimal">Minimal</SelectItem>
+                    <SelectItem value="standard">Standard</SelectItem>
+                    <SelectItem value="detailed">Detailed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>

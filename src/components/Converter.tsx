@@ -41,6 +41,7 @@ import { Settings } from "@/components/Settings";
 import { AppSettings } from "@/type/AppSettings";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { getCategoryColor } from "@/Helpers/getCategoryColor";
+import { ProgressBar } from "@/components/ProgressBar";
 
 export default function FileConverter() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFileType[]>([]);
@@ -395,7 +396,7 @@ export default function FileConverter() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto space-y-6">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-4 mb-4">
             <h1 className="text-4xl font-bold text-gray-900">
@@ -856,6 +857,14 @@ export default function FileConverter() {
             })}
           </div>
         )}
+        <ProgressBar
+          files={uploadedFiles}
+          isConverting={false}
+          settings={settings}
+          onConvertAll={() => {
+            console.log("hi");
+          }}
+        />
       </div>
     </div>
   );
