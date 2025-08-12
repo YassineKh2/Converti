@@ -48,6 +48,7 @@ export default function FileConverter() {
   const [isDragOver, setIsDragOver] = useState(false);
   const [settings, setSettings] = useState<AppSettings>({} as AppSettings);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [isConverting, setIsConverting] = useState(false);
   const [globalFormats, setGlobalFormats] = useState<Record<string, string>>(
     {},
   );
@@ -136,6 +137,12 @@ export default function FileConverter() {
       ...prev,
       [category]: format,
     }));
+
+    setUploadedFiles((prev) =>
+      prev.map((file) =>
+        file.category === category ? { ...file, selectedFormat: format } : file,
+      ),
+    );
   };
 
   const removeGlobalFormat = (category: string) => {
@@ -187,17 +194,26 @@ export default function FileConverter() {
       name,
     });
 
-    window.ipcRenderer.send("convert", { uploadedFile });
+    const result = await window.ipcRenderer.invoke("convert", { uploadedFile });
+
+    uploadedFile.isConverting = false;
+    uploadedFile.Logs = ["Finished !"];
+    uploadedFile.status = "completed";
+    uploadedFile.progress = 100;
+
+    setUploadedFiles((prev) =>
+      prev.map((file) => {
+        if (file.id === uploadedFile.id) return uploadedFile;
+
+        return file;
+      }),
+    );
 
     if (settings.notifications) {
       toast(
         `${uploadedFile.name} converted to ${uploadedFile.selectedFormat} format!`,
       );
     }
-
-    setUploadedFiles((prev) =>
-      prev.map((f) => (f.id === fileId ? { ...f, isConverting: false } : f)),
-    );
   };
 
   const globalConvertGroup = async (category: string) => {
@@ -244,7 +260,22 @@ export default function FileConverter() {
         path,
         name,
       });
-      window.ipcRenderer.send("convert", { uploadedFile });
+      const result = await window.ipcRenderer.invoke("convert", {
+        uploadedFile,
+      });
+
+      uploadedFile.isConverting = false;
+      uploadedFile.Logs = ["Finished !"];
+      uploadedFile.status = "completed";
+      uploadedFile.progress = 100;
+
+      setUploadedFiles((prev) =>
+        prev.map((file) => {
+          if (file.id === uploadedFile.id) return uploadedFile;
+
+          return file;
+        }),
+      );
     }
 
     if (settings.notifications) {
@@ -252,12 +283,6 @@ export default function FileConverter() {
         `Successfully converted ${groupFiles.length} ${category} files to ${globalFormat} format!`,
       );
     }
-
-    setUploadedFiles((prev) =>
-      prev.map((file) =>
-        file.category === category ? { ...file, isConverting: false } : file,
-      ),
-    );
   };
 
   const convertAllFiles = async () => {
@@ -294,6 +319,7 @@ export default function FileConverter() {
       ),
     );
 
+    setIsConverting(true);
     for (const uploadedFile of updatedFiles) {
       //@ts-ignore
       const path = await window.ipcRenderer.showFilePath(uploadedFile.file);
@@ -304,16 +330,29 @@ export default function FileConverter() {
         path,
         name,
       });
-      window.ipcRenderer.send("convert", { uploadedFile });
+      const result = await window.ipcRenderer.invoke("convert", {
+        uploadedFile,
+      });
+
+      uploadedFile.isConverting = false;
+      uploadedFile.Logs = ["Finished !"];
+      uploadedFile.status = "completed";
+      uploadedFile.progress = 100;
+
+      setUploadedFiles((prev) =>
+        prev.map((file) => {
+          if (file.id === uploadedFile.id) return uploadedFile;
+
+          return file;
+        }),
+      );
     }
+
+    setIsConverting(false);
 
     if (settings.notifications) {
       toast(`Successfully converted ${filesToConvert.length} files!`);
     }
-
-    setUploadedFiles((prev) =>
-      prev.map((file) => ({ ...file, isConverting: false })),
-    );
   };
 
   const archiveAllFiles = async () => {
@@ -382,21 +421,9 @@ export default function FileConverter() {
     return group.files.length === 1 || !group.globalFormat;
   };
 
-  // const handleConvert = async () => {
-  //   if (uploadedFile && selectedFormat) {
-  //     toast("Hold tight , your conversion has started !");
-  //     // showFilePath is showing as undefined
-  //     //@ts-ignore
-  //     uploadedFile.path = await window.ipcRenderer.showFilePath(
-  //       uploadedFile.file,
-  //     );
-  //     window.ipcRenderer.send("receive", { uploadedFile, selectedFormat });
-  //   }
-  // };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-4 mb-4">
             <h1 className="text-4xl font-bold text-gray-900">
@@ -855,16 +882,15 @@ export default function FileConverter() {
                 </Card>
               );
             })}
+
+            <ProgressBar
+              files={uploadedFiles}
+              isConverting={isConverting}
+              settings={settings}
+              onConvertAll={convertAllFiles}
+            />
           </div>
         )}
-        <ProgressBar
-          files={uploadedFiles}
-          isConverting={false}
-          settings={settings}
-          onConvertAll={() => {
-            console.log("hi");
-          }}
-        />
       </div>
     </div>
   );

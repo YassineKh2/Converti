@@ -3,6 +3,8 @@ import path from "node:path";
 import { SanitizeFileName } from "./SanitizeFileName";
 import { getFFMPEG } from "./GetFFMPEG";
 
+import { ConvertStatus } from "@/type/ConvertStatus";
+
 function HandleStart() {
   console.log("Started Conversion !");
 }
@@ -25,11 +27,17 @@ async function convertImage(
   outputName: string,
   format: "mp4" | "avi" | "mov" | "wmv" | "flv" | "mkv" | "webm" | "m4v",
   extension: string,
-): Promise<string> {
+): Promise<ConvertStatus> {
   const safeName = SanitizeFileName(outputName);
   const finalPath = path.join(outDir, `${safeName}.${extension}`);
 
   const ffmpeg = getFFMPEG();
+
+  let Status: ConvertStatus = {
+    status: "completed",
+    Logs: ["Finished !"],
+    progress: 0,
+  };
 
   ffmpeg(inputPath)
     .output(finalPath)
@@ -38,6 +46,8 @@ async function convertImage(
     .on("end", HandleFinish)
     .on("error", HandleError)
     .run();
+
+  return Status;
 }
 
 export async function ToMP4(outDir: string, inPath: string, name: string) {
@@ -45,7 +55,7 @@ export async function ToMP4(outDir: string, inPath: string, name: string) {
 }
 
 export async function ToAVI(outDir: string, inPath: string, name: string) {
-  return await convertImage(outDir, inPath, name, "avi", "avi");
+  await convertImage(outDir, inPath, name, "avi", "avi");
 }
 
 export async function ToMOV(outDir: string, inPath: string, name: string) {

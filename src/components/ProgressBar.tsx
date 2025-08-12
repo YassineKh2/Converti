@@ -37,10 +37,8 @@ export function ProgressBar({
   const [showLogs, setShowLogs] = useState(false);
 
   const filesToConvert = files.filter((file) => file.selectedFormat);
-  const completedFiles = files.filter(
-    (file) => file.conversionStatus === "completed",
-  );
-  const errorFiles = files.filter((file) => file.conversionStatus === "error");
+  const completedFiles = files.filter((file) => file.status === "completed");
+  const errorFiles = files.filter((file) => file.status === "error");
   const convertingFiles = files.filter((file) => file.isConverting);
 
   const overallProgress =
@@ -48,7 +46,7 @@ export function ProgressBar({
       ? (completedFiles.length / filesToConvert.length) * 100
       : 0;
 
-  const getStatusIcon = (status: UploadedFile["conversionStatus"]) => {
+  const getStatusIcon = (status: UploadedFile["Status"]) => {
     switch (status) {
       case "completed":
         return <CheckCircle className="h-4 w-4 text-green-500" />;
@@ -61,7 +59,7 @@ export function ProgressBar({
     }
   };
 
-  // if (filesToConvert.length === 0) return null;
+  if (filesToConvert.length === 0) return null;
 
   return (
     <Card className="mb-6 bg-gradient-to-r from-slate-50 to-gray-50 border-2 border-slate-200">
@@ -99,77 +97,73 @@ export function ProgressBar({
           <Progress className="h-2" value={overallProgress} />
         </div>
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium text-gray-700">
-              File Conversion Status
-            </h4>
-            <Button
-              className="h-6 text-xs"
-              size="sm"
-              variant="ghost"
-              onClick={() => setShowLogs(!showLogs)}
-            >
-              {showLogs ? (
-                <>
-                  <ChevronUp className="h-3 w-3 mr-1" />
-                  Hide Logs
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="h-3 w-3 mr-1" />
-                  Show Logs
-                </>
-              )}
-            </Button>
-          </div>
-
-          <div className="max-h-64 overflow-y-auto space-y-2 bg-white/50 rounded-lg p-3 border">
-            {filesToConvert.map((file) => (
-              <div key={file.id} className="space-y-2">
-                <div className="flex items-center gap-3 p-2 rounded-md bg-white/70 border">
-                  {getStatusIcon(file.conversionStatus)}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {file.name}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <Badge className="text-xs" variant="outline">
-                          → {file.selectedFormat}
-                        </Badge>
-                        {file.isConverting && (
-                          <span className="text-xs text-blue-600">
-                            {file.conversionProgress}%
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    {file.isConverting && (
-                      <Progress
-                        className="h-1 mt-1"
-                        value={file.conversionProgress}
-                      />
-                    )}
-                  </div>
-                </div>
-
-                {/* Detailed Logs */}
-                {showLogs && file.conversionLogs?.length > 0 && (
-                  <div className="ml-7 p-2 bg-gray-50 rounded text-xs font-mono space-y-1 border-l-2 border-gray-300">
-                    {file.conversionLogs?.map((log, index) => (
-                      <div key={index} className="text-gray-600">
-                        {log}
-                      </div>
-                    ))}
-                  </div>
+        {settings.progressDetail !== "minimal" && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-medium text-gray-700">
+                File Conversion Status
+              </h4>
+              <Button
+                className="h-6 text-xs"
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowLogs(!showLogs)}
+              >
+                {showLogs ? (
+                  <>
+                    <ChevronUp className="h-3 w-3 mr-1" />
+                    Hide Logs
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-3 w-3 mr-1" />
+                    Show Logs
+                  </>
                 )}
-              </div>
-            ))}
-          </div>
-        </div>
+              </Button>
+            </div>
 
-        {/* Summary Stats */}
+            <div className="max-h-64 overflow-y-auto space-y-2 bg-white/50 rounded-lg p-3 border">
+              {filesToConvert.map((file) => (
+                <div key={file.id} className="space-y-2">
+                  <div className="flex items-center gap-3 p-2 rounded-md bg-white/70 border">
+                    {getStatusIcon(file.status)}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {file.name}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Badge className="text-xs" variant="outline">
+                            → {file.selectedFormat}
+                          </Badge>
+                          {file.isConverting && (
+                            <span className="text-xs text-blue-600">
+                              {file.progress}%
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {file.isConverting && (
+                        <Progress className="h-1 mt-1" value={file.progress} />
+                      )}
+                    </div>
+                  </div>
+
+                  {showLogs && file.Logs?.length > 0 && (
+                    <div className="ml-7 p-2 bg-gray-50 rounded text-xs font-mono space-y-1 border-l-2 border-gray-300">
+                      {file.Logs?.map((log, index) => (
+                        <div key={index} className="text-gray-600">
+                          {log}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="grid grid-cols-3 gap-4 pt-2 border-t">
           <div className="text-center">
             <div className="text-lg font-semibold text-green-600">
@@ -191,7 +185,6 @@ export function ProgressBar({
           </div>
         </div>
 
-        {/* Bottom Convert All Button */}
         <div className="pt-2 border-t">
           <Button
             className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
