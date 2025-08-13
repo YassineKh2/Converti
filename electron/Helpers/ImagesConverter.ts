@@ -9,6 +9,8 @@ import { Jimp } from "jimp";
 
 import { SanitizeFileName } from "./SanitizeFileName";
 
+import { ConvertStatus } from "@/type/ConvertStatus";
+
 // Makes sure we can read the bmp images so that the converters can treat them
 async function loadSharpInstance(filePath: string): Promise<sharp.Sharp> {
   const ext = path.extname(filePath).toLowerCase();
@@ -35,11 +37,17 @@ async function convertImage(
   outputName: string,
   format: "jpeg" | "png" | "webp" | "avif" | "gif",
   extension: string,
-): Promise<string> {
+): Promise<ConvertStatus> {
   const safeName = SanitizeFileName(outputName);
   const finalPath = path.join(outDir, `${safeName}.${extension}`);
 
   const instance = await loadSharpInstance(inputPath);
+
+  let Status: ConvertStatus = {
+    status: "pending",
+    Logs: [],
+    progress: 0,
+  };
 
   try {
     switch (format) {
@@ -59,10 +67,20 @@ async function convertImage(
         await instance.gif().toFile(finalPath);
         break;
       default:
+        Status.progress = 0;
+        Status.status = "error";
+        Status.Logs = [`Unsupported format: ${format}`];
         throw new Error(`Unsupported format: ${format}`);
     }
 
-    return finalPath;
+    Status.progress = 100;
+    Status.status = "completed";
+    Status.Logs.push("Finished !");
+    Status.Logs.push(
+      `Converted from ${extension.toUpperCase()} to ${format.toUpperCase()}!`,
+    );
+
+    return Status;
   } finally {
     instance.destroy();
   }
@@ -88,40 +106,117 @@ export const ToGIF = (out: string, inPath: string, name: string) =>
 
 export async function ToSVG(outDir: string, inPath: string, name: string) {
   const safeName = SanitizeFileName(name);
+  const Extension = path.extname(name);
+
   const finalPath = path.join(outDir, `${safeName}.svg`);
   const svg = await new Promise<string>((res, rej) =>
     potrace.trace(inPath, (err, svg) => (err ? rej(err) : res(svg))),
   );
+  let Status: ConvertStatus = {
+    status: "pending",
+    Logs: [],
+    progress: 0,
+  };
 
-  await writeFile(finalPath, svg);
+  try {
+    await writeFile(finalPath, svg);
+  } catch (e) {
+    Status.progress = 0;
+    Status.status = "error";
+    Status.Logs = [`Error: ${e.message}`];
 
-  return finalPath;
+    return Status;
+  }
+
+  Status.progress = 100;
+  Status.status = "completed";
+  Status.Logs.push("Finished !");
+  Status.Logs.push(`Converted from ${Extension.toUpperCase()} to SVG!`);
+
+  return Status;
 }
 
 export async function ToBMP(outDir: string, inPath: string, name: string) {
   const image = await loadSharpInstance(inPath);
   const safeName = SanitizeFileName(name);
+  const Extension = path.extname(name);
+
   const finalPath = path.join(outDir, `${safeName}.bmp`);
+  let Status: ConvertStatus = {
+    status: "pending",
+    Logs: [],
+    progress: 0,
+  };
 
-  await bmp.sharpToBmp(image, finalPath);
+  try {
+    await bmp.sharpToBmp(image, finalPath);
+  } catch (e) {
+    Status.progress = 0;
+    Status.status = "error";
+    Status.Logs = [`Error: ${e.message}`];
 
-  return finalPath;
+    return Status;
+  }
+  Status.progress = 100;
+  Status.status = "completed";
+  Status.Logs.push("Finished !");
+  Status.Logs.push(`Converted from ${Extension.toUpperCase()} to BMP!`);
+
+  return Status;
 }
 
 export async function ToTIFF(outDir: string, inPath: string, name: string) {
   const image = await Jimp.read(inPath);
+  const Extension = path.extname(name);
   const safeName = SanitizeFileName(name);
   const finalPath = path.join(outDir, `${safeName}.tiff`);
+  let Status: ConvertStatus = {
+    status: "pending",
+    Logs: [],
+    progress: 0,
+  };
 
-  await image.write(finalPath as never, undefined);
+  try {
+    await image.write(finalPath as never, undefined);
+  } catch (e) {
+    Status.progress = 0;
+    Status.status = "error";
+    Status.Logs = [`Error: ${e.message}`];
 
-  return finalPath;
+    return Status;
+  }
+  Status.progress = 100;
+  Status.status = "completed";
+  Status.Logs.push("Finished !");
+  Status.Logs.push(`Converted from ${Extension.toUpperCase()} to TIFF!`);
+
+  return Status;
 }
 
 export async function ToICO(outDir: string, inPath: string, name: string) {
   const image = await loadSharpInstance(inPath);
   const safeName = SanitizeFileName(name);
+  const Extension = path.extname(name);
   const finalPath = path.join(outDir, `${safeName}.ico`);
+  let Status: ConvertStatus = {
+    status: "pending",
+    Logs: [],
+    progress: 0,
+  };
 
-  return ico.sharpsToIco([image], finalPath);
+  try {
+    await ico.sharpsToIco([image], finalPath);
+  } catch (e) {
+    Status.progress = 0;
+    Status.status = "error";
+    Status.Logs = [`Error: ${e.message}`];
+
+    return Status;
+  }
+  Status.progress = 100;
+  Status.status = "completed";
+  Status.Logs.push("Finished !");
+  Status.Logs.push(`Converted from ${Extension.toUpperCase()} to ICO!`);
+
+  return Status;
 }

@@ -5,20 +5,8 @@ import { getFFMPEG } from "./GetFFMPEG";
 
 import { ConvertStatus } from "@/type/ConvertStatus";
 
-function HandleStart() {
-  console.log("Started Conversion !");
-}
-
 function SendProgress(progress) {
-  console.log(progress.percent);
-}
-
-function HandleFinish() {
-  console.log("Finished !");
-}
-
-function HandleError(err) {
-  console.log("Error !", err.message);
+  console.log("Video Progress : " + progress?.percent);
 }
 
 async function convertImage(
@@ -34,20 +22,37 @@ async function convertImage(
   const ffmpeg = getFFMPEG();
 
   let Status: ConvertStatus = {
-    status: "completed",
-    Logs: ["Finished !"],
+    status: "pending",
+    Logs: [],
     progress: 0,
   };
 
-  ffmpeg(inputPath)
-    .output(finalPath)
-    .on("start", HandleStart)
-    .on("progress", SendProgress)
-    .on("end", HandleFinish)
-    .on("error", HandleError)
-    .run();
-
-  return Status;
+  return new Promise((resolve, reject) => {
+    ffmpeg(inputPath)
+      .output(finalPath)
+      .on("start", () => {
+        Status.Logs.push("Started");
+      })
+      .on("progress", SendProgress)
+      .on("end", () => {
+        Status.progress = 100;
+        Status.status = "completed";
+        Status.Logs.push("Finished !");
+        resolve(Status);
+      })
+      .on("error", (err) => {
+        Status.progress = 0;
+        Status.status = "error";
+        Status.Logs = [
+          err.name,
+          err.message,
+          err.cause as string,
+          err.stack as string,
+        ];
+        reject();
+      })
+      .run();
+  });
 }
 
 export async function ToMP4(outDir: string, inPath: string, name: string) {
@@ -55,7 +60,7 @@ export async function ToMP4(outDir: string, inPath: string, name: string) {
 }
 
 export async function ToAVI(outDir: string, inPath: string, name: string) {
-  await convertImage(outDir, inPath, name, "avi", "avi");
+  return await convertImage(outDir, inPath, name, "avi", "avi");
 }
 
 export async function ToMOV(outDir: string, inPath: string, name: string) {

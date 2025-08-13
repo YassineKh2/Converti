@@ -3,6 +3,11 @@ import path from "node:path";
 import { SanitizeFileName } from "./SanitizeFileName";
 import { getFFMPEG } from "./GetFFMPEG";
 
+import { ConvertStatus } from "@/type/ConvertStatus";
+
+function SendProgress(progress) {
+  console.log("Audio Progress : " + progress?.percent);
+}
 async function convertImage(
   outDir: string,
   inputPath: string,
@@ -15,7 +20,38 @@ async function convertImage(
 
   const ffmpeg = getFFMPEG();
 
-  ffmpeg(inputPath).output(finalPath).run();
+  let Status: ConvertStatus = {
+    status: "pending",
+    Logs: [],
+    progress: 0,
+  };
+
+  return new Promise((resolve, reject) => {
+    ffmpeg(inputPath)
+      .output(finalPath)
+      .on("start", () => {
+        Status.Logs.push("Started");
+      })
+      .on("progress", SendProgress)
+      .on("end", () => {
+        Status.progress = 100;
+        Status.status = "completed";
+        Status.Logs.push("Finished !");
+        resolve(Status);
+      })
+      .on("error", (err) => {
+        Status.progress = 0;
+        Status.status = "error";
+        Status.Logs = [
+          err.name,
+          err.message,
+          err.cause as string,
+          err.stack as string,
+        ];
+        reject();
+      })
+      .run();
+  });
 }
 
 export async function ToMP3(outDir: string, inPath: string, name: string) {

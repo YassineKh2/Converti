@@ -197,9 +197,9 @@ export default function FileConverter() {
     const result = await window.ipcRenderer.invoke("convert", { uploadedFile });
 
     uploadedFile.isConverting = false;
-    uploadedFile.Logs = ["Finished !"];
-    uploadedFile.status = "completed";
-    uploadedFile.progress = 100;
+    uploadedFile.Logs = result.Logs;
+    uploadedFile.status = result.status;
+    uploadedFile.progress = result.progress;
 
     setUploadedFiles((prev) =>
       prev.map((file) => {
@@ -265,9 +265,9 @@ export default function FileConverter() {
       });
 
       uploadedFile.isConverting = false;
-      uploadedFile.Logs = ["Finished !"];
-      uploadedFile.status = "completed";
-      uploadedFile.progress = 100;
+      uploadedFile.Logs = result.Logs;
+      uploadedFile.status = result.status;
+      uploadedFile.progress = result.progress;
 
       setUploadedFiles((prev) =>
         prev.map((file) => {
@@ -335,9 +335,9 @@ export default function FileConverter() {
       });
 
       uploadedFile.isConverting = false;
-      uploadedFile.Logs = ["Finished !"];
-      uploadedFile.status = "completed";
-      uploadedFile.progress = 100;
+      uploadedFile.Logs = result.Logs;
+      uploadedFile.status = result.status;
+      uploadedFile.progress = result.progress;
 
       setUploadedFiles((prev) =>
         prev.map((file) => {

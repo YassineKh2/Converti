@@ -4,9 +4,18 @@ import { spawn } from "node:child_process";
 import { SanitizeFileName } from "./SanitizeFileName";
 import { getPANDOC } from "./GetPANDOC";
 
+import { ConvertStatus } from "@/type/ConvertStatus";
+
 async function convertFileWithPandoc(pandocPath, inPath, finalPath) {
   return new Promise((resolve, reject) => {
     let stderrOutput = "";
+    let Status: ConvertStatus = {
+      status: "pending",
+      Logs: [],
+      progress: 0,
+    };
+    const inExt = path.extname(inPath).toUpperCase();
+    const outExt = path.extname(finalPath).toUpperCase();
 
     const pandocProcess = spawn(pandocPath, [
       "-s",
@@ -22,20 +31,29 @@ async function convertFileWithPandoc(pandocPath, inPath, finalPath) {
 
     pandocProcess.on("close", (code) => {
       if (code === 0) {
-        console.log(`Successfully converted "${inPath}" to "${finalPath}"`);
+        Status.progress = 100;
+        Status.status = "completed";
+        Status.Logs.push("Finished !");
+        Status.Logs.push(
+          `Successfully converted from "${inExt}" to "${outExt}"`,
+        );
         resolve(finalPath);
       } else {
         const errorMessage = `Pandoc conversion failed with exit code ${code}. Stderr: ${stderrOutput || "No stderr output."}`;
 
-        console.error(errorMessage);
-        reject(new Error(errorMessage));
+        Status.progress = 0;
+        Status.status = "error";
+        Status.Logs = [`Error: ${errorMessage}`];
+        reject(Status);
       }
     });
     pandocProcess.on("error", (err) => {
       const errorMessage = `Failed to start Pandoc process: ${err.message}. Ensure Pandoc is correctly bundled at ${pandocPath}.`;
 
-      console.error(errorMessage);
-      reject(new Error(errorMessage));
+      Status.progress = 0;
+      Status.status = "error";
+      Status.Logs = [`Error: ${errorMessage}`];
+      reject(Status);
     });
   });
 }
