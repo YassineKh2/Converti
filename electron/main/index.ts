@@ -55,12 +55,15 @@ import {
   ToRTF,
   ToTXT,
 } from "../Helpers/DocumentConverter";
+import { GetLogger } from "../Helpers/GetLogger";
 
 import { UploadedFile as UploadedFileType } from "@/type/UploadedFile";
+import { ConvertStatus } from "@/type/ConvertStatus";
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const tmpDir = path.join(app.getPath("userData"), "temp_files");
+const logDir = path.join(app.getPath("userData"), "Logs");
 
 // The built directory structure
 //
@@ -134,6 +137,9 @@ async function createWindow() {
   if (!fs.existsSync(tmpDir)) {
     fs.mkdirSync(tmpDir);
   }
+  if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir);
+  }
 }
 
 app.whenReady().then(createWindow);
@@ -194,93 +200,162 @@ ipcMain.handle("convert", async (_, arg) => {
   const lastDotIndex = uploadedFile.name.lastIndexOf(".");
   const FileName = uploadedFile.name.slice(0, lastDotIndex);
   const Extension = path.extname(uploadedFile.name);
+  const LogFile = "hi.log";
+
+  const finalPath = path.join(logDir, LogFile);
+  const logger = GetLogger(finalPath);
+
+  let Status: ConvertStatus;
 
   switch (selectedFormat.toUpperCase()) {
     case "JPG":
-      return await ToJPG(tmpDir, FilePath, FileName);
+      Status = await ToJPG(tmpDir, FilePath, FileName);
+      break;
     case "JPEG":
-      return await ToJPEG(tmpDir, FilePath, FileName);
+      Status = await ToJPEG(tmpDir, FilePath, FileName);
+      break;
     case "PNG":
-      return await ToPNG(tmpDir, FilePath, FileName);
+      Status = await ToPNG(tmpDir, FilePath, FileName);
+      break;
     case "WEBP":
-      return await ToWEBP(tmpDir, FilePath, FileName);
+      Status = await ToWEBP(tmpDir, FilePath, FileName);
+      break;
     case "GIF":
-      return await ToGIF(tmpDir, FilePath, FileName);
+      Status = await ToGIF(tmpDir, FilePath, FileName);
+      break;
     case "AVIF":
-      return await ToAVIF(tmpDir, FilePath, FileName);
+      Status = await ToAVIF(tmpDir, FilePath, FileName);
+      break;
     case "SVG":
-      return await ToSVG(tmpDir, FilePath, FileName);
+      Status = await ToSVG(tmpDir, FilePath, FileName);
+      break;
     case "BMP":
-      return await ToBMP(tmpDir, FilePath, FileName);
+      Status = await ToBMP(tmpDir, FilePath, FileName);
+      break;
     case "TIFF":
-      return await ToTIFF(tmpDir, FilePath, FileName);
+      Status = await ToTIFF(tmpDir, FilePath, FileName);
+      break;
     case "ICO":
-      return await ToICO(tmpDir, FilePath, FileName);
+      Status = await ToICO(tmpDir, FilePath, FileName);
+      break;
+
     // Video formats
     case "MP4":
-      return await ToMP4(tmpDir, FilePath, FileName);
+      Status = await ToMP4(tmpDir, FilePath, FileName);
+      break;
     case "AVI":
-      return await ToAVI(tmpDir, FilePath, FileName);
+      Status = await ToAVI(tmpDir, FilePath, FileName);
+      break;
     case "MOV":
-      return await ToMOV(tmpDir, FilePath, FileName);
+      Status = await ToMOV(tmpDir, FilePath, FileName);
+      break;
     case "WMV":
-      return await ToWMV(tmpDir, FilePath, FileName);
+      Status = await ToWMV(tmpDir, FilePath, FileName);
+      break;
     case "FLV":
-      return await ToFLV(tmpDir, FilePath, FileName);
+      Status = await ToFLV(tmpDir, FilePath, FileName);
+      break;
     case "MKV":
-      return await ToMKV(tmpDir, FilePath, FileName);
+      Status = await ToMKV(tmpDir, FilePath, FileName);
+      break;
     case "WEBM":
-      return await ToWEBM(tmpDir, FilePath, FileName);
+      Status = await ToWEBM(tmpDir, FilePath, FileName);
+      break;
     case "M4V":
-      return await ToM4V(tmpDir, FilePath, FileName);
+      Status = await ToM4V(tmpDir, FilePath, FileName);
+      break;
+
     // Audio formats
     case "MP3":
-      return await ToMP3(tmpDir, FilePath, FileName);
+      Status = await ToMP3(tmpDir, FilePath, FileName);
+      break;
     case "WAV":
-      return await ToWAV(tmpDir, FilePath, FileName);
+      Status = await ToWAV(tmpDir, FilePath, FileName);
+      break;
     case "FLAC":
-      return await ToFLAC(tmpDir, FilePath, FileName);
+      Status = await ToFLAC(tmpDir, FilePath, FileName);
+      break;
     case "AAC":
-      return await ToAAC(tmpDir, FilePath, FileName);
+      Status = await ToAAC(tmpDir, FilePath, FileName);
+      break;
     case "OGG":
-      return await ToOGG(tmpDir, FilePath, FileName);
+      Status = await ToOGG(tmpDir, FilePath, FileName);
+      break;
     case "M4A":
-      return await ToM4A(tmpDir, FilePath, FileName);
+      Status = await ToM4A(tmpDir, FilePath, FileName);
+      break;
     case "WMA":
-      return await ToWMA(tmpDir, FilePath, FileName);
+      Status = await ToWMA(tmpDir, FilePath, FileName);
+      break;
+
     // Document formats
     case "PDF":
-      return await ToPDF(tmpDir, FilePath, FileName);
+      Status = await ToPDF(tmpDir, FilePath, FileName);
+      break;
     case "DOCX":
-      return await ToDOCX(tmpDir, FilePath, FileName);
+      Status = await ToDOCX(tmpDir, FilePath, FileName);
+      break;
     case "TXT":
-      return await ToTXT(tmpDir, FilePath, FileName);
+      Status = await ToTXT(tmpDir, FilePath, FileName);
+      break;
     case "RTF":
-      return await ToRTF(tmpDir, FilePath, FileName);
+      Status = await ToRTF(tmpDir, FilePath, FileName);
+      break;
     case "ODT":
-      return await ToODT(tmpDir, FilePath, FileName);
+      Status = await ToODT(tmpDir, FilePath, FileName);
+      break;
     case "HTML":
-      return await ToHTML(tmpDir, FilePath, FileName);
+      Status = await ToHTML(tmpDir, FilePath, FileName);
+      break;
     case "EPUB":
-      return await ToEPUB(tmpDir, FilePath, FileName);
+      Status = await ToEPUB(tmpDir, FilePath, FileName);
+      break;
+
     // Archive formats
     case "ZIP":
-      return await ToZIP(tmpDir, FilePath, FileName, Extension);
+      Status = await ToZIP(tmpDir, FilePath, FileName, Extension);
+      break;
     case "RAR":
-      return await ToRAR(tmpDir, FilePath, FileName, Extension);
+      Status = await ToRAR(tmpDir, FilePath, FileName, Extension);
+      break;
     case "7Z":
-      return await To7Z(tmpDir, FilePath, FileName, Extension);
+      Status = await To7Z(tmpDir, FilePath, FileName, Extension);
+      break;
     case "TAR":
-      return await ToTAR(tmpDir, FilePath, FileName, Extension);
+      Status = await ToTAR(tmpDir, FilePath, FileName, Extension);
+      break;
     case "GZ":
-      return await ToGZ(tmpDir, FilePath, FileName, Extension);
+      Status = await ToGZ(tmpDir, FilePath, FileName, Extension);
+      break;
     case "BZ2":
-      return await ToBZ2(tmpDir, FilePath, FileName, Extension);
+      Status = await ToBZ2(tmpDir, FilePath, FileName, Extension);
+      break;
+
     // Other formats
     case "JSON":
     case "CSV":
     case "XML":
+      break;
   }
+
+  logger.log({
+    level: "info",
+    message: Status.status,
+  });
+
+  logger.log({
+    level: "info",
+    message: Status.Logs.join(""),
+  });
+
+  logger.log({
+    level: "info",
+    message: Status.progress.toString(),
+  });
+
+  // TODO add seperation
+
+  return Status;
 });
 
 ipcMain.handle("saveFile", async (_, arg) => {

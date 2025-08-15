@@ -7,7 +7,7 @@ import { getPANDOC } from "./GetPANDOC";
 import { ConvertStatus } from "@/type/ConvertStatus";
 
 async function convertFileWithPandoc(pandocPath, inPath, finalPath) {
-  return new Promise((resolve, reject) => {
+  return new Promise<ConvertStatus>((resolve, reject) => {
     let stderrOutput = "";
     let Status: ConvertStatus = {
       status: "pending",
@@ -37,14 +37,14 @@ async function convertFileWithPandoc(pandocPath, inPath, finalPath) {
         Status.Logs.push(
           `Successfully converted from "${inExt}" to "${outExt}"`,
         );
-        resolve(finalPath);
+        resolve(Status);
       } else {
         const errorMessage = `Pandoc conversion failed with exit code ${code}. Stderr: ${stderrOutput || "No stderr output."}`;
 
         Status.progress = 0;
         Status.status = "error";
         Status.Logs = [`Error: ${errorMessage}`];
-        reject(Status);
+        resolve(Status);
       }
     });
     pandocProcess.on("error", (err) => {
@@ -53,7 +53,7 @@ async function convertFileWithPandoc(pandocPath, inPath, finalPath) {
       Status.progress = 0;
       Status.status = "error";
       Status.Logs = [`Error: ${errorMessage}`];
-      reject(Status);
+      resolve(Status);
     });
   });
 }

@@ -183,7 +183,8 @@ export default function FileConverter() {
       prev.map((f) => (f.id === fileId ? { ...f, isConverting: true } : f)),
     );
 
-    toast("Hold tight , your conversion has started !");
+    toast.info("Hold tight , your conversion has started !");
+
     // showFilePath is showing as undefined
     //@ts-ignore
     const path = await window.ipcRenderer.showFilePath(uploadedFile.file);
@@ -209,11 +210,17 @@ export default function FileConverter() {
       }),
     );
 
-    if (settings.notifications) {
-      toast(
-        `${uploadedFile.name} converted to ${uploadedFile.selectedFormat} format!`,
-      );
+    if (uploadedFile.status === "error") {
+      const resultString = uploadedFile.Logs?.join("");
+
+      toast.error(`Conversion failed ! : ${resultString}`);
     }
+
+    if (!settings.notifications) return;
+
+    toast.success(
+      `${uploadedFile.name} converted to ${uploadedFile.selectedFormat} format!`,
+    );
   };
 
   const globalConvertGroup = async (category: string) => {
@@ -235,6 +242,7 @@ export default function FileConverter() {
     }
 
     let UploadedFiles: UploadedFileType[] = [];
+    let Results: UploadedFileType[] = [];
 
     setUploadedFiles((prev) =>
       prev.map((file) => {
@@ -248,7 +256,7 @@ export default function FileConverter() {
         return file;
       }),
     );
-    toast("Hold tight , your conversion has started !");
+    toast.info("Hold tight , your conversion has started !");
 
     for (const uploadedFile of UploadedFiles) {
       //@ts-ignore
@@ -269,6 +277,12 @@ export default function FileConverter() {
       uploadedFile.status = result.status;
       uploadedFile.progress = result.progress;
 
+      if (uploadedFile.status === "error") {
+        const resultString = uploadedFile.Logs?.join("");
+
+        toast.error(`Conversion failed ! : ${resultString}`);
+      } else Results.push(uploadedFile);
+
       setUploadedFiles((prev) =>
         prev.map((file) => {
           if (file.id === uploadedFile.id) return uploadedFile;
@@ -277,12 +291,11 @@ export default function FileConverter() {
         }),
       );
     }
+    if (!settings.notifications) return;
 
-    if (settings.notifications) {
-      toast(
-        `Successfully converted ${groupFiles.length} ${category} files to ${globalFormat} format!`,
-      );
-    }
+    toast.success(
+      `Successfully converted ${Results.length} ${category} files to ${globalFormat} format!`,
+    );
   };
 
   const convertAllFiles = async () => {
@@ -301,7 +314,7 @@ export default function FileConverter() {
     );
 
     if (filesToConvert.length === 0) {
-      toast("Please select formats for the files you want to convert.");
+      toast.warning("Please select formats for the files you want to convert.");
 
       return;
     }
@@ -319,7 +332,10 @@ export default function FileConverter() {
       ),
     );
 
+    toast.info("Hold tight , your conversion has started !");
     setIsConverting(true);
+    let Results: UploadedFileType[] = [];
+
     for (const uploadedFile of updatedFiles) {
       //@ts-ignore
       const path = await window.ipcRenderer.showFilePath(uploadedFile.file);
@@ -339,6 +355,12 @@ export default function FileConverter() {
       uploadedFile.status = result.status;
       uploadedFile.progress = result.progress;
 
+      if (uploadedFile.status === "error") {
+        const resultString = uploadedFile.Logs?.join("");
+
+        toast.error(`Conversion failed ! : ${resultString}`);
+      } else Results.push(uploadedFile);
+
       setUploadedFiles((prev) =>
         prev.map((file) => {
           if (file.id === uploadedFile.id) return uploadedFile;
@@ -350,9 +372,9 @@ export default function FileConverter() {
 
     setIsConverting(false);
 
-    if (settings.notifications) {
-      toast(`Successfully converted ${filesToConvert.length} files!`);
-    }
+    if (!settings.notifications) return;
+
+    toast.success(`Successfully converted ${Results.length} files!`);
   };
 
   const archiveAllFiles = async () => {

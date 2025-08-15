@@ -14,7 +14,7 @@ async function convertImage(
   outputName: string,
   format: "mp3" | "wav" | "flac" | "aac" | "ogg" | "m4a" | "wma",
   extension: string,
-): Promise<string> {
+): Promise<ConvertStatus> {
   const safeName = SanitizeFileName(outputName);
   const finalPath = path.join(outDir, `${safeName}.${extension}`);
 
@@ -48,7 +48,7 @@ async function convertImage(
           err.cause as string,
           err.stack as string,
         ];
-        reject();
+        resolve(Status);
       })
       .run();
   });

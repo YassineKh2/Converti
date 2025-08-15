@@ -49,7 +49,7 @@ async function convertImage(
           err.cause as string,
           err.stack as string,
         ];
-        reject();
+        resolve(Status);
       })
       .run();
   });

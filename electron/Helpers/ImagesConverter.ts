@@ -69,21 +69,28 @@ async function convertImage(
       default:
         Status.progress = 0;
         Status.status = "error";
-        Status.Logs = [`Unsupported format: ${format}`];
-        throw new Error(`Unsupported format: ${format}`);
-    }
+        Status.Logs = [`Unsupported format: ${format} or file is corrupted`];
 
-    Status.progress = 100;
-    Status.status = "completed";
-    Status.Logs.push("Finished !");
-    Status.Logs.push(
-      `Converted from ${extension.toUpperCase()} to ${format.toUpperCase()}!`,
-    );
+        return Status;
+    }
+  } catch (e) {
+    Status.progress = 0;
+    Status.status = "error";
+    Status.Logs = [`Error : ${e.message}`];
 
     return Status;
   } finally {
     instance.destroy();
   }
+
+  Status.progress = 100;
+  Status.status = "completed";
+  Status.Logs.push("Finished !");
+  Status.Logs.push(
+    `Converted from ${extension.toUpperCase()} to ${format.toUpperCase()}!`,
+  );
+
+  return Status;
 }
 
 export const ToJPEG = (out: string, inPath: string, name: string) =>
@@ -209,7 +216,7 @@ export async function ToICO(outDir: string, inPath: string, name: string) {
   } catch (e) {
     Status.progress = 0;
     Status.status = "error";
-    Status.Logs = [`Error: ${e.message}`];
+    Status.Logs = [`Error: `, e];
 
     return Status;
   }
