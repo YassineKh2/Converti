@@ -200,10 +200,12 @@ ipcMain.handle("convert", async (_, arg) => {
   const lastDotIndex = uploadedFile.name.lastIndexOf(".");
   const FileName = uploadedFile.name.slice(0, lastDotIndex);
   const Extension = path.extname(uploadedFile.name);
-  const LogFile = "hi.log";
+  const LogFile = new Date().toDateString() + ".log";
 
   const finalPath = path.join(logDir, LogFile);
   const logger = GetLogger(finalPath);
+
+  logger.info(`Converting file : ${uploadedFile.name}`);
 
   let Status: ConvertStatus;
 
@@ -338,22 +340,15 @@ ipcMain.handle("convert", async (_, arg) => {
       break;
   }
 
-  logger.log({
-    level: "info",
-    message: Status.status,
-  });
+  if (Status.status === "completed") {
+    logger.info(Status.Logs.join(" "));
+    logger.info("Placed File in " + Status.path);
+  } else {
+    logger.error(Status.Logs.join(" "));
+  }
 
-  logger.log({
-    level: "info",
-    message: Status.Logs.join(""),
-  });
-
-  logger.log({
-    level: "info",
-    message: Status.progress.toString(),
-  });
-
-  // TODO add seperation
+  logger.info("End at :" + new Date().toISOString());
+  logger.info("-----------------------------------\n");
 
   return Status;
 });
