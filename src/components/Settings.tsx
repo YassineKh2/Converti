@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Bell, Cog, FileType, FolderOpen } from "lucide-react";
+import { toast } from "sonner";
 
 import { AppSettings } from "@/type/AppSettings";
 import {
@@ -28,19 +29,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-
-// TO DO  Make this dynamicly saved in the app settings
-const defaultSettings: AppSettings = {
-  saveLocation: "original",
-  customSaveLocation: "",
-  notifications: true,
-  namingConvention: "original",
-  namingPrefix: "converted_",
-  namingSuffix: "_converted",
-  progressDetail: "standard",
-  autoOpenFolder: false,
-  confirmBeforeConvert: false,
-};
+import { defaultSettings } from "@/Helpers/getDefaultSettings";
 
 export function Settings({
   settings,
@@ -51,13 +40,38 @@ export function Settings({
 }) {
   const [localSettings, setLocalSettings] = useState<AppSettings>(settings);
 
+  useEffect(() => {
+    setLocalSettings(settings);
+  }, [settings]);
+
+  const SaveSettings = async (settings) => {
+    return await window.ipcRenderer.invoke("settings", settings);
+  };
   const handleSave = () => {
     onSettingsChange(localSettings);
+    SaveSettings(localSettings).then((response) => {
+      if (response.success) toast.success("Settings Saved");
+      else toast.error("Something wrong happened !");
+    });
   };
 
   const handleReset = () => {
     setLocalSettings(defaultSettings);
   };
+
+  async function GetFolderPath() {
+    const path = await window.ipcRenderer.invoke("getFolderPath");
+
+    if (!path) {
+      toast.error("Something wrong happened !");
+
+      return;
+    }
+
+    setLocalSettings((prev) => {
+      return { ...prev, saveLocation: "custom", customSaveLocation: path };
+    });
+  }
 
   return (
     <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -142,7 +156,7 @@ export function Settings({
                       })
                     }
                   />
-                  <Button size="sm" variant="outline">
+                  <Button size="sm" variant="outline" onClick={GetFolderPath}>
                     Browse
                   </Button>
                 </div>

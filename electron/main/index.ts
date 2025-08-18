@@ -3,7 +3,9 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import os from "node:os";
 import fs from "node:fs";
+import { readFile, writeFile } from "node:fs/promises";
 
+import { dialog } from "electron";
 import { app, BrowserWindow, ipcMain, shell } from "electron";
 
 import { SaveFileToTemp } from "../Helpers/SaveFile";
@@ -56,14 +58,18 @@ import {
   ToTXT,
 } from "../Helpers/DocumentConverter";
 import { GetLogger } from "../Helpers/GetLogger";
+import { defaultSettings } from "../Helpers/getDefaultSettings";
 
 import { UploadedFile as UploadedFileType } from "@/type/UploadedFile";
 import { ConvertStatus } from "@/type/ConvertStatus";
+import { AppSettings } from "@/type/AppSettings";
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const tmpDir = path.join(app.getPath("userData"), "temp_files");
-const logDir = path.join(app.getPath("userData"), "Logs");
+const appData = app.getPath("userData");
+const tmpDir = path.join(appData, "temp_files");
+const logDir = path.join(appData, "Logs");
+const settingsPath = path.join(appData, "settings.json");
 
 // The built directory structure
 //
@@ -114,10 +120,7 @@ async function createWindow() {
   });
 
   if (VITE_DEV_SERVER_URL) {
-    // #298
     win.loadURL(VITE_DEV_SERVER_URL);
-    // Open devTool if the app is not packaged
-    win.webContents.openDevTools();
   } else {
     win.loadFile(indexHtml);
   }
@@ -139,6 +142,10 @@ async function createWindow() {
   }
   if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir);
+  }
+
+  if (!fs.existsSync(settingsPath)) {
+    fs.writeFileSync(settingsPath, JSON.stringify(defaultSettings));
   }
 }
 
@@ -200,10 +207,10 @@ ipcMain.handle("convert", async (_, arg) => {
   const lastDotIndex = uploadedFile.name.lastIndexOf(".");
   const FileName = uploadedFile.name.slice(0, lastDotIndex);
   const Extension = path.extname(uploadedFile.name);
-  const LogFile = new Date().toDateString() + ".log";
 
-  const finalPath = path.join(logDir, LogFile);
-  const logger = GetLogger(finalPath);
+  const LogFile = new Date().toDateString() + ".log";
+  const logFilePath = path.join(logDir, LogFile);
+  const logger = GetLogger(logFilePath);
 
   logger.info(`Converting file : ${uploadedFile.name}`);
 
@@ -357,4 +364,41 @@ ipcMain.handle("saveFile", async (_, arg) => {
   const { path, name }: { path: string; name: string } = arg;
 
   return await SaveFileToTemp(tmpDir, path, name);
+});
+
+ipcMain.handle("settings", async (_, arg) => {
+  const settings: AppSettings = arg;
+
+  if (!settings) {
+    const settingsRaw = await readFile(settingsPath, "utf8");
+
+    return JSON.parse(settingsRaw);
+  }
+  const response = {
+    success: true,
+    reason: "",
+  };
+
+  try {
+    await writeFile(settingsPath, JSON.stringify(settings));
+  } catch (e) {
+    response.success = false;
+    response.reason = e.message;
+
+    return response;
+  }
+
+  return response;
+});
+
+ipcMain.handle("getFolderPath", async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ["openDirectory"],
+  });
+
+  if (!result.canceled) {
+    return result.filePaths[0];
+  } else {
+    return null;
+  }
 });

@@ -1,4 +1,11 @@
-import { ChangeEvent, DragEvent, useCallback, useMemo, useState } from "react";
+import {
+  ChangeEvent,
+  DragEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   Cog,
   Download,
@@ -62,6 +69,14 @@ export default function FileConverter() {
   const handleDragLeave = useCallback((e: DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
+  }, []);
+
+  useEffect(() => {
+    const getSettings = async () => {
+      return await window.ipcRenderer.invoke("settings");
+    };
+
+    getSettings().then((settings: AppSettings) => setSettings(settings));
   }, []);
 
   const processFiles = (files: FileList | File[]) => {
