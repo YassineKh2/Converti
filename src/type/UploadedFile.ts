@@ -13,6 +13,8 @@ export interface UploadedFile {
   Logs?: string[];
   progress?: number;
   path: string;
+  order?: number;
+  OutPath?: string;
 }
 export interface FileGroup {
   category: string;

@@ -49,6 +49,7 @@ import { AppSettings } from "@/type/AppSettings";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { getCategoryColor } from "@/Helpers/getCategoryColor";
 import { ProgressBar } from "@/components/ProgressBar";
+import { ConvertStatus } from "@/type/ConvertStatus";
 
 export default function FileConverter() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFileType[]>([]);
@@ -350,6 +351,7 @@ export default function FileConverter() {
     toast.info("Hold tight , your conversion has started !");
     setIsConverting(true);
     let Results: UploadedFileType[] = [];
+    let OutPath = "";
 
     for (const uploadedFile of updatedFiles) {
       //@ts-ignore
@@ -361,14 +363,21 @@ export default function FileConverter() {
         path,
         name,
       });
-      const result = await window.ipcRenderer.invoke("convert", {
+      uploadedFile.OutPath = OutPath;
+
+      uploadedFile.order = updatedFiles.indexOf(uploadedFile) + 1;
+      const nbFiles = updatedFiles.length;
+
+      const result: ConvertStatus = await window.ipcRenderer.invoke("convert", {
         uploadedFile,
+        nbFiles,
       });
 
       uploadedFile.isConverting = false;
       uploadedFile.Logs = result.Logs;
       uploadedFile.status = result.status;
       uploadedFile.progress = result.progress;
+      OutPath = result.path;
 
       if (uploadedFile.status === "error") {
         const resultString = uploadedFile.Logs?.join("");

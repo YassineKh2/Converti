@@ -102,9 +102,9 @@ export function Settings({
             <RadioGroup
               className="space-y-4"
               value={localSettings.saveLocation}
-              onValueChange={(value: "ask" | "original" | "custom") =>
-                setLocalSettings({ ...localSettings, saveLocation: value })
-              }
+              onValueChange={(
+                value: "ask" | "askOnce" | "original" | "custom",
+              ) => setLocalSettings({ ...localSettings, saveLocation: value })}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem id="ask" value="ask" />
@@ -113,6 +113,18 @@ export function Settings({
                     Ask Every Time
                     <div className="text-sm text-gray-500">
                       Prompt to select save location for each conversion
+                    </div>
+                  </div>
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem id="askOnce" value="askOnce" />
+                <Label className="" htmlFor="askOnce">
+                  <div className="font-medium">
+                    Ask Once
+                    <div className="text-sm text-gray-500">
+                      Prompt to select save location once for multiple
+                      conversions
                     </div>
                   </div>
                 </Label>

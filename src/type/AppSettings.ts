@@ -1,5 +1,5 @@
 export interface AppSettings {
-  saveLocation: "ask" | "original" | "custom";
+  saveLocation: "ask" | "askOnce" | "original" | "custom";
   customSaveLocation: string;
   notifications: boolean;
   namingConvention: "original" | "prefix" | "suffix";

@@ -201,12 +201,16 @@ ipcMain.handle("get-temp-folder", () => {
 });
 
 ipcMain.handle("convert", async (_, arg) => {
-  const { uploadedFile }: { uploadedFile: UploadedFileType } = arg;
+  const {
+    uploadedFile,
+    nbFiles,
+  }: { uploadedFile: UploadedFileType; nbFiles: number } = arg;
 
   const { path: FilePath, selectedFormat } = uploadedFile;
   const lastDotIndex = uploadedFile.name.lastIndexOf(".");
   const FileName = uploadedFile.name.slice(0, lastDotIndex);
   const Extension = path.extname(uploadedFile.name);
+  let Status: ConvertStatus;
 
   const LogFile = new Date().toDateString() + ".log";
   const logFilePath = path.join(logDir, LogFile);
@@ -214,130 +218,194 @@ ipcMain.handle("convert", async (_, arg) => {
 
   logger.info(`Converting file : ${uploadedFile.name}`);
 
-  let Status: ConvertStatus;
+  const settingsRaw = await readFile(settingsPath, "utf8");
+  const settings: AppSettings = JSON.parse(settingsRaw);
+
+  let OutPath = "";
+
+  switch (settings.saveLocation) {
+    case "original":
+      OutPath = path.dirname(FilePath);
+      break;
+
+    case "custom":
+      OutPath = settings.customSaveLocation;
+      break;
+
+    case "ask": {
+      const result = await dialog.showOpenDialog({
+        properties: ["openDirectory"],
+      });
+
+      if (result.canceled) {
+        logger.error("User canceled file selection !");
+        logger.info("End at :" + new Date().toISOString());
+        logger.info("-----------------------------------\n");
+
+        let Status: ConvertStatus = {
+          progress: 0,
+          status: "error",
+          Logs: ["User canceled file selection !"],
+        };
+
+        return Status;
+      }
+
+      OutPath = result.filePaths[0];
+      break;
+    }
+
+    case "askOnce": {
+      if (uploadedFile.OutPath && nbFiles === uploadedFile.order) {
+        OutPath = uploadedFile.OutPath;
+        break;
+      }
+      const result = await dialog.showOpenDialog({
+        properties: ["openDirectory"],
+      });
+
+      if (result.canceled) {
+        logger.error("User canceled file selection !");
+        logger.info("End at :" + new Date().toISOString());
+        logger.info("-----------------------------------\n");
+
+        let Status: ConvertStatus = {
+          progress: 0,
+          status: "error",
+          Logs: ["User canceled file selection !"],
+        };
+
+        return Status;
+      }
+
+      OutPath = result.filePaths[0];
+
+      break;
+    }
+  }
 
   switch (selectedFormat.toUpperCase()) {
     case "JPG":
-      Status = await ToJPG(tmpDir, FilePath, FileName);
+      Status = await ToJPG(OutPath, FilePath, FileName);
       break;
     case "JPEG":
-      Status = await ToJPEG(tmpDir, FilePath, FileName);
+      Status = await ToJPEG(OutPath, FilePath, FileName);
       break;
     case "PNG":
-      Status = await ToPNG(tmpDir, FilePath, FileName);
+      Status = await ToPNG(OutPath, FilePath, FileName);
       break;
     case "WEBP":
-      Status = await ToWEBP(tmpDir, FilePath, FileName);
+      Status = await ToWEBP(OutPath, FilePath, FileName);
       break;
     case "GIF":
-      Status = await ToGIF(tmpDir, FilePath, FileName);
+      Status = await ToGIF(OutPath, FilePath, FileName);
       break;
     case "AVIF":
-      Status = await ToAVIF(tmpDir, FilePath, FileName);
+      Status = await ToAVIF(OutPath, FilePath, FileName);
       break;
     case "SVG":
-      Status = await ToSVG(tmpDir, FilePath, FileName);
+      Status = await ToSVG(OutPath, FilePath, FileName);
       break;
     case "BMP":
-      Status = await ToBMP(tmpDir, FilePath, FileName);
+      Status = await ToBMP(OutPath, FilePath, FileName);
       break;
     case "TIFF":
-      Status = await ToTIFF(tmpDir, FilePath, FileName);
+      Status = await ToTIFF(OutPath, FilePath, FileName);
       break;
     case "ICO":
-      Status = await ToICO(tmpDir, FilePath, FileName);
+      Status = await ToICO(OutPath, FilePath, FileName);
       break;
 
     // Video formats
     case "MP4":
-      Status = await ToMP4(tmpDir, FilePath, FileName);
+      Status = await ToMP4(OutPath, FilePath, FileName);
       break;
     case "AVI":
-      Status = await ToAVI(tmpDir, FilePath, FileName);
+      Status = await ToAVI(OutPath, FilePath, FileName);
       break;
     case "MOV":
-      Status = await ToMOV(tmpDir, FilePath, FileName);
+      Status = await ToMOV(OutPath, FilePath, FileName);
       break;
     case "WMV":
-      Status = await ToWMV(tmpDir, FilePath, FileName);
+      Status = await ToWMV(OutPath, FilePath, FileName);
       break;
     case "FLV":
-      Status = await ToFLV(tmpDir, FilePath, FileName);
+      Status = await ToFLV(OutPath, FilePath, FileName);
       break;
     case "MKV":
-      Status = await ToMKV(tmpDir, FilePath, FileName);
+      Status = await ToMKV(OutPath, FilePath, FileName);
       break;
     case "WEBM":
-      Status = await ToWEBM(tmpDir, FilePath, FileName);
+      Status = await ToWEBM(OutPath, FilePath, FileName);
       break;
     case "M4V":
-      Status = await ToM4V(tmpDir, FilePath, FileName);
+      Status = await ToM4V(OutPath, FilePath, FileName);
       break;
 
     // Audio formats
     case "MP3":
-      Status = await ToMP3(tmpDir, FilePath, FileName);
+      Status = await ToMP3(OutPath, FilePath, FileName);
       break;
     case "WAV":
-      Status = await ToWAV(tmpDir, FilePath, FileName);
+      Status = await ToWAV(OutPath, FilePath, FileName);
       break;
     case "FLAC":
-      Status = await ToFLAC(tmpDir, FilePath, FileName);
+      Status = await ToFLAC(OutPath, FilePath, FileName);
       break;
     case "AAC":
-      Status = await ToAAC(tmpDir, FilePath, FileName);
+      Status = await ToAAC(OutPath, FilePath, FileName);
       break;
     case "OGG":
-      Status = await ToOGG(tmpDir, FilePath, FileName);
+      Status = await ToOGG(OutPath, FilePath, FileName);
       break;
     case "M4A":
-      Status = await ToM4A(tmpDir, FilePath, FileName);
+      Status = await ToM4A(OutPath, FilePath, FileName);
       break;
     case "WMA":
-      Status = await ToWMA(tmpDir, FilePath, FileName);
+      Status = await ToWMA(OutPath, FilePath, FileName);
       break;
 
     // Document formats
     case "PDF":
-      Status = await ToPDF(tmpDir, FilePath, FileName);
+      Status = await ToPDF(OutPath, FilePath, FileName);
       break;
     case "DOCX":
-      Status = await ToDOCX(tmpDir, FilePath, FileName);
+      Status = await ToDOCX(OutPath, FilePath, FileName);
       break;
     case "TXT":
-      Status = await ToTXT(tmpDir, FilePath, FileName);
+      Status = await ToTXT(OutPath, FilePath, FileName);
       break;
     case "RTF":
-      Status = await ToRTF(tmpDir, FilePath, FileName);
+      Status = await ToRTF(OutPath, FilePath, FileName);
       break;
     case "ODT":
-      Status = await ToODT(tmpDir, FilePath, FileName);
+      Status = await ToODT(OutPath, FilePath, FileName);
       break;
     case "HTML":
-      Status = await ToHTML(tmpDir, FilePath, FileName);
+      Status = await ToHTML(OutPath, FilePath, FileName);
       break;
     case "EPUB":
-      Status = await ToEPUB(tmpDir, FilePath, FileName);
+      Status = await ToEPUB(OutPath, FilePath, FileName);
       break;
 
     // Archive formats
     case "ZIP":
-      Status = await ToZIP(tmpDir, FilePath, FileName, Extension);
+      Status = await ToZIP(OutPath, FilePath, FileName, Extension);
       break;
     case "RAR":
-      Status = await ToRAR(tmpDir, FilePath, FileName, Extension);
+      Status = await ToRAR(OutPath, FilePath, FileName, Extension);
       break;
     case "7Z":
-      Status = await To7Z(tmpDir, FilePath, FileName, Extension);
+      Status = await To7Z(OutPath, FilePath, FileName, Extension);
       break;
     case "TAR":
-      Status = await ToTAR(tmpDir, FilePath, FileName, Extension);
+      Status = await ToTAR(OutPath, FilePath, FileName, Extension);
       break;
     case "GZ":
-      Status = await ToGZ(tmpDir, FilePath, FileName, Extension);
+      Status = await ToGZ(OutPath, FilePath, FileName, Extension);
       break;
     case "BZ2":
-      Status = await ToBZ2(tmpDir, FilePath, FileName, Extension);
+      Status = await ToBZ2(OutPath, FilePath, FileName, Extension);
       break;
 
     // Other formats
@@ -349,13 +417,15 @@ ipcMain.handle("convert", async (_, arg) => {
 
   if (Status.status === "completed") {
     logger.info(Status.Logs.join(" "));
-    logger.info("Placed File in " + Status.path);
+    logger.info("Placed File in " + OutPath);
   } else {
     logger.error(Status.Logs.join(" "));
   }
 
   logger.info("End at :" + new Date().toISOString());
   logger.info("-----------------------------------\n");
+
+  Status.path = OutPath;
 
   return Status;
 });
