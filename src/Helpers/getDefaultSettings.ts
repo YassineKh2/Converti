@@ -10,4 +10,5 @@ export const defaultSettings: AppSettings = {
   progressDetail: "standard",
   autoOpenFolder: false,
   confirmBeforeConvert: false,
+  showArchive: true,
 };

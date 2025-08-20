@@ -208,7 +208,7 @@ ipcMain.handle("convert", async (_, arg) => {
 
   const { path: FilePath, selectedFormat } = uploadedFile;
   const lastDotIndex = uploadedFile.name.lastIndexOf(".");
-  const FileName = uploadedFile.name.slice(0, lastDotIndex);
+  let FileName = uploadedFile.name.slice(0, lastDotIndex);
   const Extension = path.extname(uploadedFile.name);
   let Status: ConvertStatus;
 
@@ -216,6 +216,9 @@ ipcMain.handle("convert", async (_, arg) => {
   const logFilePath = path.join(logDir, LogFile);
   const logger = GetLogger(logFilePath);
 
+  logger.info(
+    `Converting file ${uploadedFile.order} from ${nbFiles} file${nbFiles > 1 && "s"}`,
+  );
   logger.info(`Converting file : ${uploadedFile.name}`);
 
   const settingsRaw = await readFile(settingsPath, "utf8");
@@ -256,7 +259,9 @@ ipcMain.handle("convert", async (_, arg) => {
     }
 
     case "askOnce": {
-      if (uploadedFile.OutPath && nbFiles === uploadedFile.order) {
+      console.log(nbFiles);
+      console.log(uploadedFile.order);
+      if (uploadedFile.OutPath) {
         OutPath = uploadedFile.OutPath;
         break;
       }
@@ -282,6 +287,18 @@ ipcMain.handle("convert", async (_, arg) => {
 
       break;
     }
+  }
+
+  switch (settings.namingConvention) {
+    case "prefix":
+      FileName = settings.namingPrefix + FileName;
+      break;
+    case "suffix":
+      FileName = FileName + settings.namingSuffix;
+      break;
+    case "both":
+      FileName = settings.namingPrefix + FileName + settings.namingSuffix;
+      break;
   }
 
   switch (selectedFormat.toUpperCase()) {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Bell, Cog, FileType, FolderOpen } from "lucide-react";
+import { Bell, Cog, FileType, FolderArchive, FolderOpen } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppSettings } from "@/type/AppSettings";
@@ -192,7 +192,9 @@ export function Settings({
               <Label htmlFor="namingConvention">Naming Convention</Label>
               <Select
                 value={localSettings.namingConvention}
-                onValueChange={(value: "original" | "prefix" | "suffix") =>
+                onValueChange={(
+                  value: "original" | "prefix" | "suffix" | "both",
+                ) =>
                   setLocalSettings({
                     ...localSettings,
                     namingConvention: value,
@@ -206,11 +208,13 @@ export function Settings({
                   <SelectItem value="original">Keep Original Name</SelectItem>
                   <SelectItem value="prefix">Add Prefix</SelectItem>
                   <SelectItem value="suffix">Add Suffix</SelectItem>
+                  <SelectItem value="both">Both</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {localSettings.namingConvention === "prefix" && (
+            {(localSettings.namingConvention === "prefix" ||
+              localSettings.namingConvention === "both") && (
               <div className="space-y-2">
                 <Label htmlFor="prefix">Prefix</Label>
                 <Input
@@ -230,7 +234,8 @@ export function Settings({
               </div>
             )}
 
-            {localSettings.namingConvention === "suffix" && (
+            {(localSettings.namingConvention === "suffix" ||
+              localSettings.namingConvention === "both") && (
               <div className="space-y-2">
                 <Label htmlFor="suffix">Suffix</Label>
                 <Input
@@ -249,6 +254,43 @@ export function Settings({
                 </p>
               </div>
             )}
+            {localSettings.namingConvention === "both" && (
+              <p className="text-xs text-gray-500 font-bold">
+                Final Name Example : {localSettings.namingPrefix}document
+                {localSettings.namingSuffix}.pdf
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <FolderArchive className="h-5 w-5" />
+              Conversion Settings
+            </CardTitle>
+            <CardDescription>
+              Configure how the application behaves while converting files
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Enable Archive</Label>
+                <div className="text-sm text-gray-500">
+                  Show the option to archive uploaded files
+                </div>
+              </div>
+              <Switch
+                checked={localSettings.showArchive}
+                onCheckedChange={(checked) =>
+                  setLocalSettings({
+                    ...localSettings,
+                    showArchive: checked,
+                  })
+                }
+              />
+            </div>
           </CardContent>
         </Card>
 
