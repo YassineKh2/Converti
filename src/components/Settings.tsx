@@ -112,7 +112,7 @@ export function Settings({
                   <div className="font-medium">
                     Ask Every Time
                     <div className="text-sm text-gray-500">
-                      Prompt to select save location for each conversion
+                      Select save location for each conversion
                     </div>
                   </div>
                 </Label>
@@ -123,8 +123,7 @@ export function Settings({
                   <div className="font-medium">
                     Ask Once
                     <div className="text-sm text-gray-500">
-                      Prompt to select save location once for multiple
-                      conversions
+                      Select save location once for multiple conversions
                     </div>
                   </div>
                 </Label>
@@ -276,13 +275,17 @@ export function Settings({
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Enable Archive</Label>
-                <div className="text-sm text-gray-500">
+                <Label htmlFor="archive">Enable Archive</Label>
+                <Label
+                  className="text-sm text-gray-500 font-normal"
+                  htmlFor="archive"
+                >
                   Show the option to archive uploaded files
-                </div>
+                </Label>
               </div>
               <Switch
                 checked={localSettings.showArchive}
+                id="archive"
                 onCheckedChange={(checked) =>
                   setLocalSettings({
                     ...localSettings,
@@ -308,13 +311,17 @@ export function Settings({
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Enable Notifications</Label>
-                <div className="text-sm text-gray-500">
+                <Label htmlFor="notifications">Enable Notifications</Label>
+                <Label
+                  className="text-sm text-gray-500 font-normal"
+                  htmlFor="notifications"
+                >
                   Show notifications when conversions complete
-                </div>
+                </Label>
               </div>
               <Switch
                 checked={localSettings.notifications}
+                id="notifications"
                 onCheckedChange={(checked) =>
                   setLocalSettings({
                     ...localSettings,
@@ -326,13 +333,17 @@ export function Settings({
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Auto-open Output Folder</Label>
-                <div className="text-sm text-gray-500">
+                <Label htmlFor="autoOpenFolder">Auto-open Output Folder</Label>
+                <Label
+                  className="text-sm text-gray-500 font-normal"
+                  htmlFor="autoOpenFolder"
+                >
                   Automatically open the folder containing converted files
-                </div>
+                </Label>
               </div>
               <Switch
                 checked={localSettings.autoOpenFolder}
+                id="autoOpenFolder"
                 onCheckedChange={(checked) =>
                   setLocalSettings({
                     ...localSettings,
@@ -344,13 +355,19 @@ export function Settings({
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Confirm Before Convert</Label>
-                <div className="text-sm text-gray-500">
+                <Label htmlFor="confirmBeforeConvert">
+                  Confirm Before Convert
+                </Label>
+                <Label
+                  className="text-sm text-gray-500 font-normal"
+                  htmlFor="confirmBeforeConvert"
+                >
                   Show confirmation dialog before starting conversions
-                </div>
+                </Label>
               </div>
               <Switch
                 checked={localSettings.confirmBeforeConvert}
+                id="confirmBeforeConvert"
                 onCheckedChange={(checked) =>
                   setLocalSettings({
                     ...localSettings,

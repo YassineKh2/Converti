@@ -267,18 +267,25 @@ export default function FileConverter() {
     let Results: UploadedFileType[] = [];
     let OutPath = "";
 
+    setUploadedFiles((prev) =>
+      prev.map((file) => {
+        if (file.category === category) {
+          file.selectedFormat = globalFormat;
+
+          return { ...file, isConverting: true, selectedFormat: globalFormat };
+        }
+
+        return file;
+      }),
+    );
+
     uploadedFiles.map((file) => {
       if (file.category === category) {
         file.selectedFormat = globalFormat;
-        console.log("files", updatedFiles);
-
         file = { ...file, isConverting: true, selectedFormat: globalFormat };
         updatedFiles.push(file);
       }
     });
-
-    // TO FIX
-    setUploadedFiles(updatedFiles);
 
     toast.info("Hold tight , your conversion has started !");
 
@@ -584,7 +591,7 @@ export default function FileConverter() {
               </CardHeader>
             </Card>
 
-            {hasMultipleFiles && (
+            {hasMultipleFiles && settings.showArchive && (
               <Card className="mb-6 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 border-2">
                 <CardHeader>
                   <div className="flex items-center justify-between">

@@ -111,6 +111,9 @@ async function ArchiveFile(
         Status.progress = 0;
         Status.status = "error";
         Status.Logs = ["Error during 7z compression:", result.message];
+        fs.rmSync(tempFolder, { recursive: true, force: true });
+
+        return Status;
       }
     } else await run7zCommand(["x", inPath, `-o${tempFolder}`]);
 
@@ -119,6 +122,8 @@ async function ArchiveFile(
     Status.progress = 0;
     Status.status = "error";
     Status.Logs = ["Error during 7z compression:", error.message];
+
+    fs.rmSync(tempFolder, { recursive: true, force: true });
 
     return Status;
   }
