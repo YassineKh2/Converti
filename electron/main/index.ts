@@ -204,7 +204,12 @@ ipcMain.handle("convert", async (_, arg) => {
   const {
     uploadedFile,
     nbFiles,
-  }: { uploadedFile: UploadedFileType; nbFiles: number } = arg;
+    SuccessfulConverts,
+  }: {
+    uploadedFile: UploadedFileType;
+    nbFiles: number;
+    SuccessfulConverts?: number;
+  } = arg;
 
   const { path: FilePath, selectedFormat } = uploadedFile;
   const lastDotIndex = uploadedFile.name.lastIndexOf(".");
@@ -443,6 +448,20 @@ ipcMain.handle("convert", async (_, arg) => {
   logger.info("-----------------------------------\n");
 
   Status.path = OutPath;
+
+  if (!settings.autoOpenFolder) return Status;
+
+  // For Multiple files
+  if (uploadedFile.order === nbFiles && SuccessfulConverts > 0) {
+    await shell.openPath(OutPath);
+  }
+
+  if (uploadedFile.status !== "completed") return Status;
+
+  // For single files
+  if (nbFiles === 1) {
+    await shell.openPath(OutPath);
+  }
 
   return Status;
 });

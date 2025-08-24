@@ -8,7 +8,6 @@ import {
 } from "react";
 import {
   Cog,
-  Download,
   Globe,
   Package,
   RotateCcw,
@@ -50,6 +49,7 @@ import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { getCategoryColor } from "@/Helpers/getCategoryColor";
 import { ProgressBar } from "@/components/ProgressBar";
 import { ConvertStatus } from "@/type/ConvertStatus";
+import { Spinner } from "@/components/ui/shadcn-io/spinner";
 
 export default function FileConverter() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFileType[]>([]);
@@ -236,6 +236,8 @@ export default function FileConverter() {
       const resultString = uploadedFile.Logs?.join("");
 
       toast.error(`Conversion failed ! : ${resultString}`);
+
+      return;
     }
 
     if (!settings.notifications) return;
@@ -264,7 +266,7 @@ export default function FileConverter() {
     }
 
     let updatedFiles: UploadedFileType[] = [];
-    let Results: UploadedFileType[] = [];
+    let SuccessfulConverts: number = 0;
     let OutPath = "";
 
     setUploadedFiles((prev) =>
@@ -308,6 +310,7 @@ export default function FileConverter() {
       const result: ConvertStatus = await window.ipcRenderer.invoke("convert", {
         uploadedFile,
         nbFiles,
+        SuccessfulConverts,
       });
 
       uploadedFile.isConverting = false;
@@ -320,7 +323,7 @@ export default function FileConverter() {
         const resultString = uploadedFile.Logs?.join("");
 
         toast.error(`Conversion failed ! : ${resultString}`);
-      } else Results.push(uploadedFile);
+      } else SuccessfulConverts++;
 
       setUploadedFiles((prev) =>
         prev.map((file) => {
@@ -332,9 +335,10 @@ export default function FileConverter() {
     }
 
     if (!settings.notifications) return;
+    if (SuccessfulConverts === 0) return;
 
     toast.success(
-      `Successfully converted ${Results.length} ${category} files to ${globalFormat} format!`,
+      `Successfully converted ${SuccessfulConverts} ${category} files to ${globalFormat} format!`,
     );
   };
 
@@ -373,8 +377,9 @@ export default function FileConverter() {
     );
 
     toast.info("Hold tight , your conversion has started !");
+
     setIsConverting(true);
-    let Results: UploadedFileType[] = [];
+    let SuccessfulConverts: number = 0;
     let OutPath = "";
 
     for (const uploadedFile of updatedFiles) {
@@ -395,6 +400,7 @@ export default function FileConverter() {
       const result: ConvertStatus = await window.ipcRenderer.invoke("convert", {
         uploadedFile,
         nbFiles,
+        SuccessfulConverts,
       });
 
       uploadedFile.isConverting = false;
@@ -407,7 +413,7 @@ export default function FileConverter() {
         const resultString = uploadedFile.Logs?.join("");
 
         toast.error(`Conversion failed ! : ${resultString}`);
-      } else Results.push(uploadedFile);
+      } else SuccessfulConverts++;
 
       setUploadedFiles((prev) =>
         prev.map((file) => {
@@ -421,8 +427,9 @@ export default function FileConverter() {
     setIsConverting(false);
 
     if (!settings.notifications) return;
+    if (SuccessfulConverts === 0) return;
 
-    toast.success(`Successfully converted ${Results.length} files!`);
+    toast.success(`Successfully converted ${SuccessfulConverts} files!`);
   };
 
   const archiveAllFiles = async () => {
@@ -577,16 +584,6 @@ export default function FileConverter() {
                         ` • Archive format: ${selectedArchiveFormat}`}
                     </CardDescription>
                   </div>
-                  {selectedFilesCount > 0 && (
-                    <Button
-                      disabled={convertingFilesCount > 0}
-                      size="lg"
-                      onClick={convertAllFiles}
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Convert All ({selectedFilesCount})
-                    </Button>
-                  )}
                 </div>
               </CardHeader>
             </Card>
@@ -772,6 +769,9 @@ export default function FileConverter() {
                                 <Zap className="h-4 w-4 mr-2" />
                                 Convert All to {group.globalFormat} (
                                 {group.files.length})
+                                {convertingInGroup > 0 && (
+                                  <Spinner variant="circle" />
+                                )}
                               </Button>
                             </div>
                           )}
@@ -934,9 +934,14 @@ export default function FileConverter() {
                                               convertFile(uploadedFile.id)
                                             }
                                           >
-                                            {uploadedFile.isConverting
-                                              ? "Converting..."
-                                              : "Convert"}
+                                            {uploadedFile.isConverting ? (
+                                              <div className="flex items-center gap-2">
+                                                <div>Converting</div>
+                                                <Spinner variant="circle" />
+                                              </div>
+                                            ) : (
+                                              "Convert"
+                                            )}
                                           </Button>
                                         </div>
                                       )}

@@ -113,7 +113,7 @@ export const ToGIF = (out: string, inPath: string, name: string) =>
 
 export async function ToSVG(outDir: string, inPath: string, name: string) {
   const safeName = SanitizeFileName(name);
-  const Extension = path.extname(name);
+  const Extension = path.extname(inPath);
 
   const finalPath = path.join(outDir, `${safeName}.svg`);
   const svg = await new Promise<string>((res, rej) =>
@@ -146,7 +146,7 @@ export async function ToSVG(outDir: string, inPath: string, name: string) {
 export async function ToBMP(outDir: string, inPath: string, name: string) {
   const image = await loadSharpInstance(inPath);
   const safeName = SanitizeFileName(name);
-  const Extension = path.extname(name);
+  const Extension = path.extname(inPath);
 
   const finalPath = path.join(outDir, `${safeName}.bmp`);
   let Status: ConvertStatus = {
@@ -174,7 +174,7 @@ export async function ToBMP(outDir: string, inPath: string, name: string) {
 
 export async function ToTIFF(outDir: string, inPath: string, name: string) {
   const image = await Jimp.read(inPath);
-  const Extension = path.extname(name);
+  const Extension = path.extname(inPath);
   const safeName = SanitizeFileName(name);
   const finalPath = path.join(outDir, `${safeName}.tiff`);
   let Status: ConvertStatus = {

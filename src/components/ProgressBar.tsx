@@ -22,6 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Spinner } from "@/components/ui/shadcn-io/spinner";
 
 export function ProgressBar({
   files,
@@ -193,9 +194,14 @@ export function ProgressBar({
             onClick={onConvertAll}
           >
             <Zap className="h-4 w-4 mr-2" />
-            {isConverting
-              ? "Converting..."
-              : `Convert All Files (${filesToConvert.length})`}
+            {isConverting ? (
+              <div className="flex items-center gap-5">
+                <div>Converting Files</div>
+                <Spinner variant="circle" />
+              </div>
+            ) : (
+              `Convert All Files (${filesToConvert.length})`
+            )}
           </Button>
         </div>
       </CardContent>
