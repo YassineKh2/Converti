@@ -508,3 +508,159 @@ ipcMain.handle("getFolderPath", async () => {
     return null;
   }
 });
+
+ipcMain.handle("archive", async (_, arg) => {
+  const {
+    uploadedFile,
+    nbFiles,
+    SuccessfulArchives,
+  }: {
+    uploadedFile: UploadedFileType;
+    nbFiles: number;
+    SuccessfulArchives?: number;
+  } = arg;
+
+  const { path: FilePath, selectedFormat } = uploadedFile;
+  const lastDotIndex = uploadedFile.name.lastIndexOf(".");
+  let FileName = uploadedFile.name.slice(0, lastDotIndex);
+  const Extension = path.extname(uploadedFile.name);
+  let Status: ConvertStatus;
+
+  const LogFile = new Date().toDateString() + ".log";
+  const logFilePath = path.join(logDir, LogFile);
+  const logger = GetLogger(logFilePath);
+
+  logger.info(
+    `Converting file ${uploadedFile.order} from ${nbFiles} file${nbFiles > 1 && "s"}`,
+  );
+  logger.info(`Converting file : ${uploadedFile.name}`);
+
+  const settingsRaw = await readFile(settingsPath, "utf8");
+  const settings: AppSettings = JSON.parse(settingsRaw);
+
+  let OutPath = "";
+
+  // TODO Change these to functions
+  switch (settings.saveLocation) {
+    case "original":
+      OutPath = path.dirname(FilePath);
+      break;
+
+    case "custom":
+      OutPath = settings.customSaveLocation;
+      break;
+
+    case "ask": {
+      const result = await dialog.showOpenDialog({
+        properties: ["openDirectory"],
+      });
+
+      if (result.canceled) {
+        logger.error("User canceled file selection !");
+        logger.info("End at :" + new Date().toISOString());
+        logger.info("-----------------------------------\n");
+
+        let Status: ConvertStatus = {
+          progress: 0,
+          status: "error",
+          Logs: ["User canceled file selection !"],
+        };
+
+        return Status;
+      }
+
+      OutPath = result.filePaths[0];
+      break;
+    }
+
+    case "askOnce": {
+      if (uploadedFile.OutPath) {
+        OutPath = uploadedFile.OutPath;
+        break;
+      }
+      const result = await dialog.showOpenDialog({
+        properties: ["openDirectory"],
+      });
+
+      if (result.canceled) {
+        logger.error("User canceled file selection !");
+        logger.info("End at :" + new Date().toISOString());
+        logger.info("-----------------------------------\n");
+
+        let Status: ConvertStatus = {
+          progress: 0,
+          status: "error",
+          Logs: ["User canceled file selection !"],
+        };
+
+        return Status;
+      }
+
+      OutPath = result.filePaths[0];
+
+      break;
+    }
+  }
+
+  switch (settings.namingConvention) {
+    case "prefix":
+      FileName = settings.namingPrefix + FileName;
+      break;
+    case "suffix":
+      FileName = FileName + settings.namingSuffix;
+      break;
+    case "both":
+      FileName = settings.namingPrefix + FileName + settings.namingSuffix;
+      break;
+  }
+
+  switch (selectedFormat.toUpperCase()) {
+    // Archive formats
+    case "ZIP":
+      Status = await ToZIP(OutPath, FilePath, FileName, Extension);
+      break;
+    case "RAR":
+      Status = await ToRAR(OutPath, FilePath, FileName, Extension);
+      break;
+    case "7Z":
+      Status = await To7Z(OutPath, FilePath, FileName, Extension);
+      break;
+    case "TAR":
+      Status = await ToTAR(OutPath, FilePath, FileName, Extension);
+      break;
+    case "GZ":
+      Status = await ToGZ(OutPath, FilePath, FileName, Extension);
+      break;
+    case "BZ2":
+      Status = await ToBZ2(OutPath, FilePath, FileName, Extension);
+      break;
+  }
+
+  if (Status.status === "completed") {
+    logger.info(Status.Logs.join(" "));
+    logger.info("Placed File in " + OutPath);
+  } else {
+    logger.error(Status.Logs.join(" "));
+  }
+
+  logger.info("End at :" + new Date().toISOString());
+  logger.info("-----------------------------------\n");
+
+  Status.path = OutPath;
+
+  if (!settings.autoOpenFolder) return Status;
+
+  // For Multiple files
+  if (uploadedFile.order === nbFiles && SuccessfulArchives > 0) {
+    await shell.openPath(OutPath);
+  }
+
+  if (uploadedFile.status !== "completed") return Status;
+
+  // For single files
+  if (nbFiles === 1) {
+    await shell.openPath(OutPath);
+  }
+
+  return Status;
+});

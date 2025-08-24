@@ -42,7 +42,14 @@ import {
   getDefaultFormat,
 } from "@/Helpers/getConversionOptions";
 import { getFileIcon } from "@/Helpers/getFileIcon";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Settings } from "@/components/Settings";
 import { AppSettings } from "@/type/AppSettings";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
@@ -62,6 +69,10 @@ export default function FileConverter() {
   );
   const [selectedArchiveFormat, setSelectedArchiveFormat] =
     useState<string>("");
+  const [confirmModal, setConfirmModal] = useState({
+    show: false,
+    functionRef: (files?: UploadedFileType[]) => {},
+  });
   const handleDragOver = useCallback((e: DragEvent) => {
     e.preventDefault();
     setIsDragOver(true);
@@ -241,6 +252,12 @@ export default function FileConverter() {
     }
 
     if (!settings.notifications) return;
+    if (settings.confirmBeforeConvert) {
+      setConfirmModal({
+        show: false,
+        functionRef: null,
+      });
+    }
 
     toast.success(
       `${uploadedFile.name} converted to ${uploadedFile.selectedFormat} format!`,
@@ -336,6 +353,12 @@ export default function FileConverter() {
 
     if (!settings.notifications) return;
     if (SuccessfulConverts === 0) return;
+    if (settings.confirmBeforeConvert) {
+      setConfirmModal({
+        show: false,
+        functionRef: null,
+      });
+    }
 
     toast.success(
       `Successfully converted ${SuccessfulConverts} ${category} files to ${globalFormat} format!`,
@@ -428,19 +451,18 @@ export default function FileConverter() {
 
     if (!settings.notifications) return;
     if (SuccessfulConverts === 0) return;
+    if (settings.confirmBeforeConvert) {
+      setConfirmModal({
+        show: false,
+        functionRef: null,
+      });
+    }
 
     toast.success(`Successfully converted ${SuccessfulConverts} files!`);
   };
 
   const archiveAllFiles = async () => {
     if (!selectedArchiveFormat) return;
-
-    if (settings.confirmBeforeConvert) {
-      // TO DO Make confirmation UI
-      const confirmed = true;
-
-      if (!confirmed) return;
-    }
 
     setUploadedFiles((prev) =>
       prev.map((file) => ({ ...file, isConverting: true })),
@@ -587,7 +609,6 @@ export default function FileConverter() {
                 </div>
               </CardHeader>
             </Card>
-
             {hasMultipleFiles && settings.showArchive && (
               <Card className="mb-6 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 border-2">
                 <CardHeader>
@@ -651,7 +672,6 @@ export default function FileConverter() {
                 </CardContent>
               </Card>
             )}
-
             {fileGroups.map((group) => {
               const isExpanded = expandedGroups.has(group.category);
               const convertingInGroup = group.files.filter(
@@ -762,9 +782,17 @@ export default function FileConverter() {
                               <Button
                                 className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
                                 disabled={convertingInGroup > 0}
-                                onClick={() =>
-                                  globalConvertGroup(group.category)
-                                }
+                                onClick={() => {
+                                  if (!settings.confirmBeforeConvert) {
+                                    globalConvertGroup(group.category);
+                                  } else {
+                                    setConfirmModal({
+                                      show: true,
+                                      functionRef: () =>
+                                        globalConvertGroup(group.category),
+                                    });
+                                  }
+                                }}
                               >
                                 <Zap className="h-4 w-4 mr-2" />
                                 Convert All to {group.globalFormat} (
@@ -930,9 +958,21 @@ export default function FileConverter() {
                                             size={
                                               isSingleFile ? "default" : "sm"
                                             }
-                                            onClick={() =>
-                                              convertFile(uploadedFile.id)
-                                            }
+                                            onClick={() => {
+                                              if (
+                                                !settings.confirmBeforeConvert
+                                              ) {
+                                                convertFile(uploadedFile.id);
+                                              } else {
+                                                setConfirmModal({
+                                                  show: true,
+                                                  functionRef: () =>
+                                                    convertFile(
+                                                      uploadedFile.id,
+                                                    ),
+                                                });
+                                              }
+                                            }}
                                           >
                                             {uploadedFile.isConverting ? (
                                               <div className="flex items-center gap-2">
@@ -957,13 +997,61 @@ export default function FileConverter() {
                 </Card>
               );
             })}
-
             <ProgressBar
               files={uploadedFiles}
               isConverting={isConverting}
               settings={settings}
-              onConvertAll={convertAllFiles}
+              onConvertAll={() => {
+                if (!settings.confirmBeforeConvert) {
+                  convertAllFiles();
+                } else {
+                  setConfirmModal({
+                    show: true,
+                    functionRef: convertAllFiles,
+                  });
+                }
+              }}
             />
+            <Dialog
+              open={confirmModal.show}
+              onOpenChange={() => {
+                setConfirmModal({
+                  show: false,
+                  functionRef: null,
+                });
+              }}
+            >
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Confirm Conversion</DialogTitle>
+                  <DialogDescription>
+                    Are you sure you want to proceed with the conversion? This
+                    action cannot be undone.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex justify-between items-center gap-2">
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      setConfirmModal({
+                        show: false,
+                        functionRef: null,
+                      });
+                    }}
+                  >
+                    No, Don&#39;t convert{" "}
+                  </Button>
+                  <Button
+                    variant="default"
+                    onClick={() => {
+                      confirmModal.functionRef();
+                    }}
+                  >
+                    Yes, Convert{" "}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
       </div>
