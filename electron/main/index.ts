@@ -59,6 +59,14 @@ import {
 } from "../Helpers/DocumentConverter";
 import { GetLogger } from "../Helpers/GetLogger";
 import { defaultSettings } from "../Helpers/getDefaultSettings";
+import {
+  Make7ZArchive,
+  MakeBZ2Archive,
+  MakeGZArchive,
+  MakeRARArchive,
+  MakeTARArchive,
+  MakeZIPArchive,
+} from "../Helpers/ArchiveFiles";
 
 import { UploadedFile as UploadedFileType } from "@/type/UploadedFile";
 import { ConvertStatus } from "@/type/ConvertStatus";
@@ -456,9 +464,9 @@ ipcMain.handle("convert", async (_, arg) => {
     await shell.openPath(OutPath);
   }
 
+  // For single files
   if (uploadedFile.status !== "completed") return Status;
 
-  // For single files
   if (nbFiles === 1) {
     await shell.openPath(OutPath);
   }
@@ -514,16 +522,16 @@ ipcMain.handle("archive", async (_, arg) => {
     uploadedFile,
     nbFiles,
     SuccessfulArchives,
+    ArchiveName,
   }: {
     uploadedFile: UploadedFileType;
     nbFiles: number;
     SuccessfulArchives?: number;
   } = arg;
 
-  const { path: FilePath, selectedFormat } = uploadedFile;
+  const { path: FilePath, selectedArchiveFormat } = uploadedFile;
   const lastDotIndex = uploadedFile.name.lastIndexOf(".");
   let FileName = uploadedFile.name.slice(0, lastDotIndex);
-  const Extension = path.extname(uploadedFile.name);
   let Status: ConvertStatus;
 
   const LogFile = new Date().toDateString() + ".log";
@@ -531,16 +539,14 @@ ipcMain.handle("archive", async (_, arg) => {
   const logger = GetLogger(logFilePath);
 
   logger.info(
-    `Converting file ${uploadedFile.order} from ${nbFiles} file${nbFiles > 1 && "s"}`,
+    `Archiving file ${uploadedFile.order} from ${nbFiles} file${nbFiles > 1 && "s"}`,
   );
-  logger.info(`Converting file : ${uploadedFile.name}`);
 
   const settingsRaw = await readFile(settingsPath, "utf8");
   const settings: AppSettings = JSON.parse(settingsRaw);
 
   let OutPath = "";
 
-  // TODO Change these to functions
   switch (settings.saveLocation) {
     case "original":
       OutPath = path.dirname(FilePath);
@@ -614,31 +620,29 @@ ipcMain.handle("archive", async (_, arg) => {
       break;
   }
 
-  switch (selectedFormat.toUpperCase()) {
-    // Archive formats
+  switch (selectedArchiveFormat?.toUpperCase()) {
     case "ZIP":
-      Status = await ToZIP(OutPath, FilePath, FileName, Extension);
+      Status = await MakeZIPArchive(OutPath, FilePath, ArchiveName);
       break;
     case "RAR":
-      Status = await ToRAR(OutPath, FilePath, FileName, Extension);
+      Status = await MakeRARArchive(OutPath, FilePath, ArchiveName);
       break;
     case "7Z":
-      Status = await To7Z(OutPath, FilePath, FileName, Extension);
+      Status = await Make7ZArchive(OutPath, FilePath, ArchiveName);
       break;
     case "TAR":
-      Status = await ToTAR(OutPath, FilePath, FileName, Extension);
+      Status = await MakeTARArchive(OutPath, FilePath, ArchiveName);
       break;
     case "GZ":
-      Status = await ToGZ(OutPath, FilePath, FileName, Extension);
+      Status = await MakeGZArchive(OutPath, FilePath, ArchiveName);
       break;
     case "BZ2":
-      Status = await ToBZ2(OutPath, FilePath, FileName, Extension);
+      Status = await MakeBZ2Archive(OutPath, FilePath, ArchiveName);
       break;
   }
 
   if (Status.status === "completed") {
     logger.info(Status.Logs.join(" "));
-    logger.info("Placed File in " + OutPath);
   } else {
     logger.error(Status.Logs.join(" "));
   }
@@ -655,9 +659,9 @@ ipcMain.handle("archive", async (_, arg) => {
     await shell.openPath(OutPath);
   }
 
+  // For single files
   if (uploadedFile.status !== "completed") return Status;
 
-  // For single files
   if (nbFiles === 1) {
     await shell.openPath(OutPath);
   }

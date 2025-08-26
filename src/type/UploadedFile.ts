@@ -8,6 +8,7 @@ export interface UploadedFile {
   type: string;
   category: string;
   selectedFormat: string;
+  selectedArchiveFormat?: string;
   isConverting: boolean;
   status?: "pending" | "converting" | "completed" | "error";
   Logs?: string[];

@@ -464,20 +464,74 @@ export default function FileConverter() {
   const archiveAllFiles = async () => {
     if (!selectedArchiveFormat) return;
 
+    // TODO Add confimation Modal
     setUploadedFiles((prev) =>
-      prev.map((file) => ({ ...file, isConverting: true })),
+      prev.map((file) => ({
+        ...file,
+        isConverting: true,
+      })),
     );
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    const updatedFiles = uploadedFiles.map((file) => {
+      return { ...file, selectedArchiveFormat: selectedArchiveFormat };
+    });
 
-    if (settings.notifications) {
-      toast(
-        `Successfully archived ${uploadedFiles.length} files into ${selectedArchiveFormat} format!`,
-      );
+    setIsConverting(true);
+    let SuccessfulArchives: number = 0;
+    let OutPath = "";
+    let ArchiveName = updatedFiles[0].name;
+
+    for (const uploadedFile of updatedFiles) {
+      //@ts-ignore
+      const path = await window.ipcRenderer.showFilePath(uploadedFile.file);
+
+      const { name } = uploadedFile;
+
+      uploadedFile.path = await window.ipcRenderer.invoke("saveFile", {
+        path,
+        name,
+      });
+      uploadedFile.OutPath = OutPath;
+
+      uploadedFile.order = uploadedFiles.indexOf(uploadedFile) + 1;
+      const nbFiles = uploadedFiles.length;
+
+      const result: ConvertStatus = await window.ipcRenderer.invoke("archive", {
+        uploadedFile,
+        nbFiles,
+        SuccessfulArchives,
+        ArchiveName,
+      });
+
+      uploadedFile.isConverting = false;
+      uploadedFile.Logs = result.Logs;
+      uploadedFile.status = result.status;
+      uploadedFile.progress = result.progress;
+      if (result.path) OutPath = result.path;
+
+      if (uploadedFile.status === "error") {
+        const resultString = uploadedFile.Logs?.join("");
+
+        toast.error(`Conversion failed ! : ${resultString}`);
+      } else SuccessfulArchives++;
     }
 
     setUploadedFiles((prev) =>
       prev.map((file) => ({ ...file, isConverting: false })),
+    );
+    setIsConverting(false);
+
+    if (!settings.notifications) return;
+    if (SuccessfulArchives === 0) return;
+    if (settings.confirmBeforeConvert) {
+      setConfirmModal({
+        show: false,
+        functionRef: null,
+      });
+    }
+
+    toast.success(
+      `Successfully archived ${SuccessfulArchives} files into ${selectedArchiveFormat} format!`,
     );
   };
 
