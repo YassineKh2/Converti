@@ -608,18 +608,6 @@ ipcMain.handle("archive", async (_, arg) => {
     }
   }
 
-  switch (settings.namingConvention) {
-    case "prefix":
-      FileName = settings.namingPrefix + FileName;
-      break;
-    case "suffix":
-      FileName = FileName + settings.namingSuffix;
-      break;
-    case "both":
-      FileName = settings.namingPrefix + FileName + settings.namingSuffix;
-      break;
-  }
-
   switch (selectedArchiveFormat?.toUpperCase()) {
     case "ZIP":
       Status = await MakeZIPArchive(OutPath, FilePath, ArchiveName);

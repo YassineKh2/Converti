@@ -57,6 +57,8 @@ import { getCategoryColor } from "@/Helpers/getCategoryColor";
 import { ProgressBar } from "@/components/ProgressBar";
 import { ConvertStatus } from "@/type/ConvertStatus";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 export default function FileConverter() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFileType[]>([]);
@@ -64,6 +66,7 @@ export default function FileConverter() {
   const [settings, setSettings] = useState<AppSettings>({} as AppSettings);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [isConverting, setIsConverting] = useState(false);
+  const [archiveName, setArchiveName] = useState("myArchive");
   const [globalFormats, setGlobalFormats] = useState<Record<string, string>>(
     {},
   );
@@ -483,8 +486,26 @@ export default function FileConverter() {
     setIsConverting(true);
     let SuccessfulArchives: number = 0;
     let OutPath = "";
-    let ArchiveName = updatedFiles[0].name;
     const nbFiles = uploadedFiles.length;
+    let ArchiveName = "";
+
+    switch (settings.namingConventionArchive) {
+      case "original":
+        ArchiveName = updatedFiles[0].name;
+        break;
+      case "ask":
+        ArchiveName = archiveName;
+        break;
+      case "custom":
+        ArchiveName = settings.namingArchive;
+        break;
+    }
+
+    if (!settings.removeTimestamp) {
+      const currentDate = new Date().toISOString();
+
+      ArchiveName = ArchiveName + "-" + currentDate;
+    }
 
     for (const uploadedFile of updatedFiles) {
       //@ts-ignore
@@ -714,29 +735,49 @@ export default function FileConverter() {
                       </div>
                     </div>
                     {selectedArchiveFormat && (
-                      <div className="flex items-center justify-between pt-2 border-t border-purple-200">
-                        <p className="text-sm text-purple-800">
-                          Archive as: files.
-                          {selectedArchiveFormat.toLowerCase()}
-                        </p>
-                        <Button
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                          disabled={convertingFilesCount > 0}
-                          onClick={() => {
-                            if (!settings.confirmBeforeConvert) {
-                              archiveAllFiles();
-                            } else {
-                              setConfirmModal({
-                                show: true,
-                                action: "archiving",
-                                functionRef: archiveAllFiles,
-                              });
+                      <div className="flex flex-col gap-2 justify-between pt-2 border-t border-purple-200">
+                        {settings.namingConventionArchive === "ask" && (
+                          <div className="space-y-2">
+                            <Label className="text-purple-900" htmlFor="prefix">
+                              Set a name for your archive
+                            </Label>
+                            <Input
+                              className="bg-white"
+                              id="prefix"
+                              placeholder="myArchive"
+                              value={archiveName}
+                              onChange={(e) => setArchiveName(e.target.value)}
+                            />
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between w-full">
+                          <p className="text-sm text-purple-800">
+                            Archive as: files.
+                            {selectedArchiveFormat.toLowerCase()}
+                          </p>
+                          <Button
+                            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                            disabled={
+                              convertingFilesCount > 0 ||
+                              (settings.namingConventionArchive === "ask" &&
+                                archiveName === "")
                             }
-                          }}
-                        >
-                          <Package className="h-4 w-4 mr-2" />
-                          Archive All Files
-                        </Button>
+                            onClick={() => {
+                              if (!settings.confirmBeforeConvert) {
+                                archiveAllFiles();
+                              } else {
+                                setConfirmModal({
+                                  show: true,
+                                  action: "archiving",
+                                  functionRef: archiveAllFiles,
+                                });
+                              }
+                            }}
+                          >
+                            <Package className="h-4 w-4 mr-2" />
+                            Archive All Files
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>

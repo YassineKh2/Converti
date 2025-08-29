@@ -8,7 +8,7 @@ export const defaultSettings: AppSettings = {
   namingPrefix: "converted_",
   namingSuffix: "_converted",
   namingConventionArchive: "original",
-  namingArchive: "",
+  namingArchive: "myArchive",
   removeTimestamp: false,
   progressDetail: "standard",
   autoOpenFolder: false,
