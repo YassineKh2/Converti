@@ -71,6 +71,7 @@ export default function FileConverter() {
     useState<string>("");
   const [confirmModal, setConfirmModal] = useState({
     show: false,
+    action: "",
     functionRef: (files?: UploadedFileType[]) => {},
   });
   const handleDragOver = useCallback((e: DragEvent) => {
@@ -255,6 +256,7 @@ export default function FileConverter() {
     if (settings.confirmBeforeConvert) {
       setConfirmModal({
         show: false,
+        action: "",
         functionRef: null,
       });
     }
@@ -306,6 +308,8 @@ export default function FileConverter() {
       }
     });
 
+    const nbFiles = updatedFiles.length;
+
     toast.info("Hold tight , your conversion has started !");
 
     for (const uploadedFile of updatedFiles) {
@@ -322,7 +326,6 @@ export default function FileConverter() {
       uploadedFile.OutPath = OutPath;
 
       uploadedFile.order = updatedFiles.indexOf(uploadedFile) + 1;
-      const nbFiles = updatedFiles.length;
 
       const result: ConvertStatus = await window.ipcRenderer.invoke("convert", {
         uploadedFile,
@@ -356,6 +359,7 @@ export default function FileConverter() {
     if (settings.confirmBeforeConvert) {
       setConfirmModal({
         show: false,
+        action: "",
         functionRef: null,
       });
     }
@@ -404,6 +408,7 @@ export default function FileConverter() {
     setIsConverting(true);
     let SuccessfulConverts: number = 0;
     let OutPath = "";
+    const nbFiles = updatedFiles.length;
 
     for (const uploadedFile of updatedFiles) {
       //@ts-ignore
@@ -418,7 +423,6 @@ export default function FileConverter() {
       uploadedFile.OutPath = OutPath;
 
       uploadedFile.order = updatedFiles.indexOf(uploadedFile) + 1;
-      const nbFiles = updatedFiles.length;
 
       const result: ConvertStatus = await window.ipcRenderer.invoke("convert", {
         uploadedFile,
@@ -454,6 +458,7 @@ export default function FileConverter() {
     if (settings.confirmBeforeConvert) {
       setConfirmModal({
         show: false,
+        action: "",
         functionRef: null,
       });
     }
@@ -464,7 +469,6 @@ export default function FileConverter() {
   const archiveAllFiles = async () => {
     if (!selectedArchiveFormat) return;
 
-    // TODO Add confimation Modal
     setUploadedFiles((prev) =>
       prev.map((file) => ({
         ...file,
@@ -480,6 +484,7 @@ export default function FileConverter() {
     let SuccessfulArchives: number = 0;
     let OutPath = "";
     let ArchiveName = updatedFiles[0].name;
+    const nbFiles = uploadedFiles.length;
 
     for (const uploadedFile of updatedFiles) {
       //@ts-ignore
@@ -491,10 +496,9 @@ export default function FileConverter() {
         path,
         name,
       });
-      uploadedFile.OutPath = OutPath;
 
-      uploadedFile.order = uploadedFiles.indexOf(uploadedFile) + 1;
-      const nbFiles = uploadedFiles.length;
+      uploadedFile.OutPath = OutPath;
+      uploadedFile.order = updatedFiles.indexOf(uploadedFile) + 1;
 
       const result: ConvertStatus = await window.ipcRenderer.invoke("archive", {
         uploadedFile,
@@ -526,6 +530,7 @@ export default function FileConverter() {
     if (settings.confirmBeforeConvert) {
       setConfirmModal({
         show: false,
+        action: "",
         functionRef: null,
       });
     }
@@ -699,7 +704,9 @@ export default function FileConverter() {
                                 ? "default"
                                 : "outline"
                             }
-                            onClick={() => setSelectedArchiveFormat(format)}
+                            onClick={() => {
+                              setSelectedArchiveFormat(format);
+                            }}
                           >
                             {format}
                           </Button>
@@ -715,7 +722,17 @@ export default function FileConverter() {
                         <Button
                           className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                           disabled={convertingFilesCount > 0}
-                          onClick={archiveAllFiles}
+                          onClick={() => {
+                            if (!settings.confirmBeforeConvert) {
+                              archiveAllFiles();
+                            } else {
+                              setConfirmModal({
+                                show: true,
+                                action: "archiving",
+                                functionRef: archiveAllFiles,
+                              });
+                            }
+                          }}
                         >
                           <Package className="h-4 w-4 mr-2" />
                           Archive All Files
@@ -842,6 +859,7 @@ export default function FileConverter() {
                                   } else {
                                     setConfirmModal({
                                       show: true,
+                                      action: "converting",
                                       functionRef: () =>
                                         globalConvertGroup(group.category),
                                     });
@@ -1020,6 +1038,7 @@ export default function FileConverter() {
                                               } else {
                                                 setConfirmModal({
                                                   show: true,
+                                                  action: "converting",
                                                   functionRef: () =>
                                                     convertFile(
                                                       uploadedFile.id,
@@ -1061,6 +1080,7 @@ export default function FileConverter() {
                 } else {
                   setConfirmModal({
                     show: true,
+                    action: "converting",
                     functionRef: convertAllFiles,
                   });
                 }
@@ -1071,6 +1091,7 @@ export default function FileConverter() {
               onOpenChange={() => {
                 setConfirmModal({
                   show: false,
+                  action: "",
                   functionRef: null,
                 });
               }}
@@ -1079,8 +1100,8 @@ export default function FileConverter() {
                 <DialogHeader>
                   <DialogTitle>Confirm Conversion</DialogTitle>
                   <DialogDescription>
-                    Are you sure you want to proceed with the conversion? This
-                    action cannot be undone.
+                    Are you sure you want to proceed with {confirmModal.action}{" "}
+                    these files?
                   </DialogDescription>
                 </DialogHeader>
                 <div className="flex justify-between items-center gap-2">
@@ -1089,19 +1110,31 @@ export default function FileConverter() {
                     onClick={() => {
                       setConfirmModal({
                         show: false,
+                        action: "",
                         functionRef: null,
                       });
                     }}
                   >
-                    No, Don&#39;t convert{" "}
+                    No, Don&#39;t{" "}
+                    {confirmModal.action === "converting"
+                      ? "Convert"
+                      : "Archive"}
                   </Button>
                   <Button
                     variant="default"
                     onClick={() => {
                       confirmModal.functionRef();
+                      setConfirmModal({
+                        show: false,
+                        action: "",
+                        functionRef: null,
+                      });
                     }}
                   >
-                    Yes, Convert{" "}
+                    Yes,{" "}
+                    {confirmModal.action === "converting"
+                      ? "Convert"
+                      : "Archive"}
                   </Button>
                 </div>
               </DialogContent>

@@ -182,13 +182,11 @@ export function Settings({
               <FileType className="h-5 w-5" />
               File Naming Convention
             </CardTitle>
-            <CardDescription>
-              Choose how converted files should be named.
-            </CardDescription>
+            <CardDescription>Choose how files should be named.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2 flex justify-between items-baseline">
-              <Label htmlFor="namingConvention">Naming Convention</Label>
+              <Label htmlFor="namingConvention">For Conversions</Label>
               <Select
                 value={localSettings.namingConvention}
                 onValueChange={(
@@ -259,6 +257,38 @@ export function Settings({
                 {localSettings.namingSuffix}.pdf
               </p>
             )}
+
+            <div className="space-y-2 flex justify-between items-baseline">
+              <div className="space-y-0.5">
+                <Label htmlFor="namingConvention">For Archives</Label>
+                <div className="text-sm text-gray-500">
+                  {localSettings.namingConventionArchive === "original" &&
+                    "Use the name of the first file"}
+                  {localSettings.namingConventionArchive === "ask" &&
+                    "Specify a name for the archive each time."}
+                  {localSettings.namingConventionArchive === "custom" &&
+                    "Define a custom name for the archive."}
+                </div>
+              </div>
+              <Select
+                value={localSettings.namingConventionArchive}
+                onValueChange={(value: "original" | "ask" | "custom") =>
+                  setLocalSettings({
+                    ...localSettings,
+                    namingConventionArchive: value,
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="original">Use First File Name</SelectItem>
+                  <SelectItem value="ask">Ask</SelectItem>
+                  <SelectItem value="custom">Custom Name</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </CardContent>
         </Card>
 
@@ -304,8 +334,8 @@ export function Settings({
               Notifications & Progress
             </CardTitle>
             <CardDescription>
-              Configure how the application provides feedback during
-              conversions.
+              Configure how the application provides feedback during conversions
+              and archives.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -316,7 +346,7 @@ export function Settings({
                   className="text-sm text-gray-500 font-normal"
                   htmlFor="notifications"
                 >
-                  Show notifications when conversions complete
+                  Show notifications when complete
                 </Label>
               </div>
               <Switch
@@ -338,7 +368,7 @@ export function Settings({
                   className="text-sm text-gray-500 font-normal"
                   htmlFor="autoOpenFolder"
                 >
-                  Automatically open the folder containing converted files
+                  Automatically open the folder containing files
                 </Label>
               </div>
               <Switch
@@ -362,7 +392,7 @@ export function Settings({
                   className="text-sm text-gray-500 font-normal"
                   htmlFor="confirmBeforeConvert"
                 >
-                  Show confirmation dialog before starting conversions
+                  Show confirmation dialog before starting the operation
                 </Label>
               </div>
               <Switch

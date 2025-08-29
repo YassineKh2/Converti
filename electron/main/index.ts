@@ -225,7 +225,7 @@ ipcMain.handle("convert", async (_, arg) => {
   const Extension = path.extname(uploadedFile.name);
   let Status: ConvertStatus;
 
-  const LogFile = new Date().toDateString() + ".log";
+  const LogFile = new Date().toISOString() + ".log";
   const logFilePath = path.join(logDir, LogFile);
   const logger = GetLogger(logFilePath);
 
@@ -534,7 +534,7 @@ ipcMain.handle("archive", async (_, arg) => {
   let FileName = uploadedFile.name.slice(0, lastDotIndex);
   let Status: ConvertStatus;
 
-  const LogFile = new Date().toDateString() + ".log";
+  const LogFile = new Date().toISOString() + ".log";
   const logFilePath = path.join(logDir, LogFile);
   const logger = GetLogger(logFilePath);
 

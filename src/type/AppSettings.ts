@@ -5,6 +5,9 @@ export interface AppSettings {
   namingConvention: "original" | "prefix" | "suffix" | "both";
   namingPrefix: string;
   namingSuffix: string;
+  namingConventionArchive: "original" | "ask" | "custom";
+  namingArchive: string;
+  removeTimestamp: boolean;
   progressDetail: "minimal" | "standard" | "detailed";
   autoOpenFolder: boolean;
   confirmBeforeConvert: boolean;
