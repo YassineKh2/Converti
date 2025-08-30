@@ -59,6 +59,9 @@ import { ConvertStatus } from "@/type/ConvertStatus";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { UnsupportedFilesScreen } from "@/components/UnsupportedFiles";
+import { Footer } from "@/components/Footer";
+import { isFileSupported } from "@/Helpers/isFileSupported";
 
 export default function FileConverter() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFileType[]>([]);
@@ -596,13 +599,17 @@ export default function FileConverter() {
   const hasMultipleFiles = uploadedFiles.length > 1;
   const totalFileCount = uploadedFiles.length;
 
+  const unsupportedFiles = uploadedFiles.filter((file) =>
+    isFileSupported(file.type),
+  );
+
   const shouldShowIndividualMode = (group: FileGroup) => {
     return group.files.length === 1 || !group.globalFormat;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex flex-col justify-between">
+      <div className="max-w-6xl mx-auto w-full">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-4 mb-4">
             <h1 className="text-4xl font-bold text-gray-900">
@@ -684,6 +691,8 @@ export default function FileConverter() {
                         ` • ${convertingFilesCount} converting...`}
                       {selectedArchiveFormat &&
                         ` • Archive format: ${selectedArchiveFormat}`}
+                      {unsupportedFiles.length > 0 &&
+                        ` • ${unsupportedFiles.length} unsupported`}
                     </CardDescription>
                   </div>
                 </div>
@@ -1111,6 +1120,12 @@ export default function FileConverter() {
                 </Card>
               );
             })}
+            <UnsupportedFilesScreen
+              unsupportedFiles={unsupportedFiles}
+              onRemoveFile={removeFile}
+              onRetry={() => window.location.reload()}
+            />
+
             <ProgressBar
               files={uploadedFiles}
               isConverting={isConverting}
@@ -1127,6 +1142,7 @@ export default function FileConverter() {
                 }
               }}
             />
+
             <Dialog
               open={confirmModal.show}
               onOpenChange={() => {
@@ -1183,6 +1199,7 @@ export default function FileConverter() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

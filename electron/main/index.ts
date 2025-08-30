@@ -437,12 +437,6 @@ ipcMain.handle("convert", async (_, arg) => {
     case "BZ2":
       Status = await ToBZ2(OutPath, FilePath, FileName, Extension);
       break;
-
-    // Other formats
-    case "JSON":
-    case "CSV":
-    case "XML":
-      break;
   }
 
   if (Status.status === "completed") {
