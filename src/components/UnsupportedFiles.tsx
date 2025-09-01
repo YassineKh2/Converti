@@ -1,4 +1,4 @@
-import { AlertTriangle, Info, RefreshCw, X } from "lucide-react";
+import { AlertTriangle, Info, X } from "lucide-react";
 
 import { UploadedFile } from "@/type/UploadedFile";
 import {
@@ -76,16 +76,22 @@ export function UnsupportedFilesScreen({
             <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-blue-800">
               <p className="font-medium mb-1">Supported file types:</p>
-              <p className="text-xs leading-relaxed">
-                <strong>Images:</strong> JPG, PNG, GIF, WebP, SVG, BMP, TIFF
-                <br />
-                <strong>Videos:</strong> MP4, AVI, MOV, WMV, FLV, MKV, WebM
-                <br />
-                <strong>Audio:</strong> MP3, WAV, FLAC, AAC, OGG, M4A, WMA
-                <br />
-                <strong>Documents:</strong> PDF, DOCX, TXT, RTF, HTML, EPUB
-                <br />
-                <strong>Archives:</strong> ZIP, RAR, 7Z, TAR
+              <p className="text-xs leading-relaxed flex flex-col items-start">
+                <div>
+                  <strong>Images:</strong> JPG, PNG, GIF, WebP, SVG, BMP, TIFF
+                </div>
+                <div>
+                  <strong>Videos:</strong> MP4, AVI, MOV, WMV, FLV, MKV, WebM
+                </div>
+                <div>
+                  <strong>Audio:</strong> MP3, WAV, FLAC, AAC, OGG, M4A, WMA
+                </div>
+                <div>
+                  <strong>Documents:</strong> PDF, DOCX, TXT, RTF, HTML, EPUB
+                </div>
+                <div>
+                  <strong>Archives:</strong> ZIP, RAR, 7Z, TAR, GZ, BZ2
+                </div>
               </p>
             </div>
           </div>
@@ -93,17 +99,8 @@ export function UnsupportedFilesScreen({
 
         <div className="flex items-center justify-between pt-2 border-t border-red-200">
           <p className="text-sm text-red-700">
-            Remove unsupported files to continue with conversion
+            These fills will not be converted as they are unsupported
           </p>
-          <Button
-            className="border-red-300 text-red-700 hover:bg-red-50 bg-transparent"
-            size="sm"
-            variant="outline"
-            onClick={onRetry}
-          >
-            <RefreshCw className="h-3 w-3 mr-1" />
-            Refresh
-          </Button>
         </div>
       </CardContent>
     </Card>

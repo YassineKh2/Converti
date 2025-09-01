@@ -125,7 +125,10 @@ async function createWindow() {
     },
     height: 700,
     width: 900,
+    menu: null,
   });
+
+  win.removeMenu();
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);

@@ -348,6 +348,7 @@ export function Settings({
                       </div>
                       <Switch
                         checked={localSettings.removeTimestamp}
+                        className="data-[state=checked]:bg-secondary"
                         id="autoOpenFolder"
                         onCheckedChange={(checked) => {
                           if (checked) setConfirmTimestamp(true);
@@ -388,6 +389,7 @@ export function Settings({
                 </div>
                 <Switch
                   checked={localSettings.showArchive}
+                  className="data-[state=checked]:bg-secondary"
                   id="archive"
                   onCheckedChange={(checked) =>
                     setLocalSettings({
@@ -424,6 +426,7 @@ export function Settings({
                 </div>
                 <Switch
                   checked={localSettings.notifications}
+                  className="data-[state=checked]:bg-secondary"
                   id="notifications"
                   onCheckedChange={(checked) =>
                     setLocalSettings({
@@ -448,6 +451,7 @@ export function Settings({
                 </div>
                 <Switch
                   checked={localSettings.autoOpenFolder}
+                  className="data-[state=checked]:bg-secondary"
                   id="autoOpenFolder"
                   onCheckedChange={(checked) =>
                     setLocalSettings({
@@ -472,6 +476,7 @@ export function Settings({
                 </div>
                 <Switch
                   checked={localSettings.confirmBeforeConvert}
+                  className="data-[state=checked]:bg-secondary"
                   id="confirmBeforeConvert"
                   onCheckedChange={(checked) =>
                     setLocalSettings({
@@ -532,7 +537,12 @@ export function Settings({
               <Button variant="outline">Cancel</Button>
             </DialogTrigger>
             <DialogTrigger asChild>
-              <Button onClick={handleSave}>Save Settings</Button>
+              <Button
+                className="bg-secondary hover:bg-chart-4"
+                onClick={handleSave}
+              >
+                Save Settings
+              </Button>
             </DialogTrigger>
           </div>
         </div>

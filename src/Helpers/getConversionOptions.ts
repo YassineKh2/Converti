@@ -19,7 +19,7 @@ export const getConversionOptions = (
     audio: ["MP3", "WAV", "FLAC", "AAC", "OGG", "M4A", "WMA"],
     document: ["PDF", "DOCX", "TXT", "RTF", "ODT", "HTML", "EPUB"],
     archive: ["ZIP", "RAR", "7Z", "TAR", "GZ", "BZ2"],
-    other: ["TXT", "JSON", "CSV", "XML"],
+    other: [],
   };
 
   const availableOptions = options[category] || options.other;
@@ -35,7 +35,7 @@ export const getDefaultFormat = (category: string): string => {
     audio: "MP3",
     document: "PDF",
     archive: "ZIP",
-    other: "TXT",
+    other: "",
   };
 
   return defaults[category] || "TXT";

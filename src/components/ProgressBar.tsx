@@ -35,7 +35,9 @@ export function ProgressBar({
   onConvertAll: () => void;
   isConverting: boolean;
 }) {
-  const [showLogs, setShowLogs] = useState(false);
+  const [showLogs, setShowLogs] = useState(
+    settings.progressDetail === "detailed",
+  );
 
   const filesToConvert = files.filter((file) => file.selectedFormat);
   const completedFiles = files.filter((file) => file.status === "completed");
@@ -173,7 +175,7 @@ export function ProgressBar({
             <div className="text-xs text-gray-500">Completed</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-semibold text-blue-600">
+            <div className="text-lg font-semibold">
               {convertingFiles.length}
             </div>
             <div className="text-xs text-gray-500">Converting</div>
@@ -188,7 +190,7 @@ export function ProgressBar({
 
         <div className="pt-2 border-t">
           <Button
-            className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+            className="w-full bg-secondary hover:bg-chart-4"
             disabled={isConverting || filesToConvert.length === 0}
             size="lg"
             onClick={onConvertAll}

@@ -206,13 +206,6 @@ export default function FileConverter() {
 
     if (!uploadedFile) return;
 
-    if (settings.confirmBeforeConvert) {
-      // TO DO Make confirmation UI
-      const confirmed = true;
-
-      if (!confirmed) return;
-    }
-
     setUploadedFiles((prev) =>
       prev.map((f) => (f.id === fileId ? { ...f, isConverting: true } : f)),
     );
@@ -277,18 +270,15 @@ export default function FileConverter() {
 
     if (!globalFormat) return;
 
-    const groupFiles = uploadedFiles.filter(
+    const supportedFiles = uploadedFiles.filter((file) =>
+      isFileSupported(file.type),
+    );
+
+    const groupFiles = supportedFiles.filter(
       (file) => file.category === category,
     );
 
     if (groupFiles.length === 0) return;
-
-    if (settings.confirmBeforeConvert) {
-      // TO DO Make confirmation UI
-      const confirmed = true;
-
-      if (!confirmed) return;
-    }
 
     let updatedFiles: UploadedFileType[] = [];
     let SuccessfulConverts: number = 0;
@@ -376,7 +366,11 @@ export default function FileConverter() {
   };
 
   const convertAllFiles = async () => {
-    const updatedFiles = uploadedFiles.map((file) => {
+    const supportedFiles = uploadedFiles.filter((file) =>
+      isFileSupported(file.type),
+    );
+
+    const updatedFiles = supportedFiles.map((file) => {
       const globalFormat = globalFormats[file.category];
 
       if (globalFormat && !file.selectedFormat) {
@@ -394,13 +388,6 @@ export default function FileConverter() {
       toast.warning("Please select formats for the files you want to convert.");
 
       return;
-    }
-
-    if (settings.confirmBeforeConvert) {
-      // TO DO Make confirmation UI
-      const confirmed = true;
-
-      if (!confirmed) return;
     }
 
     setUploadedFiles(
@@ -599,8 +586,8 @@ export default function FileConverter() {
   const hasMultipleFiles = uploadedFiles.length > 1;
   const totalFileCount = uploadedFiles.length;
 
-  const unsupportedFiles = uploadedFiles.filter((file) =>
-    isFileSupported(file.type),
+  const unsupportedFiles = uploadedFiles.filter(
+    (file) => !isFileSupported(file.type),
   );
 
   const shouldShowIndividualMode = (group: FileGroup) => {
@@ -608,7 +595,7 @@ export default function FileConverter() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex flex-col justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 p-4 flex flex-col justify-between">
       <div className="max-w-6xl mx-auto w-full">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-4 mb-4">
@@ -618,7 +605,7 @@ export default function FileConverter() {
             <Dialog>
               <DialogTrigger asChild>
                 <Button
-                  className="h-10 w-10 bg-transparent"
+                  className="h-10 w-10 bg-transparent border-none shadow-none"
                   size="icon"
                   variant="outline"
                 >
@@ -637,7 +624,7 @@ export default function FileConverter() {
         <Card className="border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors mb-6">
           <CardContent className="p-8">
             <div
-              className={`text-center ${isDragOver ? "bg-blue-50 border-blue-300" : ""} rounded-lg p-6 transition-colors`}
+              className={`text-center ${isDragOver ? "bg-secondary/10 border-ring" : ""} rounded-lg p-6 transition-colors`}
               onDragLeave={handleDragLeave}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
@@ -650,7 +637,7 @@ export default function FileConverter() {
                 Convert files individually, set global formats, or archive them
               </p>
               <div className="flex items-center justify-center gap-4">
-                <Button asChild>
+                <Button asChild className="bg-secondary hover:bg-chart-4">
                   <label className="cursor-pointer" htmlFor="file-upload">
                     Choose Files
                     <input
@@ -765,7 +752,7 @@ export default function FileConverter() {
                             {selectedArchiveFormat.toLowerCase()}
                           </p>
                           <Button
-                            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                            className="bg-secondary hover:bg-chart-4"
                             disabled={
                               convertingFilesCount > 0 ||
                               (settings.namingConventionArchive === "ask" &&
@@ -806,6 +793,8 @@ export default function FileConverter() {
               const isSingleFile = group.files.length === 1;
               const showIndividualMode = shouldShowIndividualMode(group);
 
+              if (group.category === "other") return <></>;
+
               return (
                 <Card
                   key={group.category}
@@ -824,7 +813,12 @@ export default function FileConverter() {
                               </Badge>
                             )}
                             {hasGlobalFormat && (
-                              <Badge className="text-xs bg-green-100 text-green-800 border-green-300">
+                              <Badge
+                                className={
+                                  "border-none text-xs text-black " +
+                                  group.color
+                                }
+                              >
                                 <Globe className="h-3 w-3 mr-1" />
                                 Global: {group.globalFormat}
                               </Badge>
@@ -896,12 +890,12 @@ export default function FileConverter() {
                           ) : (
                             <div className="flex justify-between items-center gap-4">
                               <div className="flex items-center gap-2">
-                                <Badge className="bg-green-100 text-green-800 border-green-300">
+                                <Badge className="bg-secondary hover:bg-chart-4">
                                   Selected: {group.globalFormat}
                                 </Badge>
                               </div>
                               <Button
-                                className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+                                className="bg-secondary hover:bg-chart-4"
                                 disabled={convertingInGroup > 0}
                                 onClick={() => {
                                   if (!settings.confirmBeforeConvert) {
