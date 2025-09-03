@@ -23,5 +23,5 @@ export interface FileGroup {
   defaultFormat: string;
   globalFormat: string;
   icon: ReactNode;
-  color: string;
+  color: string[];
 }

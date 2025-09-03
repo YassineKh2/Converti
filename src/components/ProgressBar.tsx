@@ -70,7 +70,7 @@ export function ProgressBar({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-full bg-slate-600 flex items-center justify-center">
                 <Download className="h-5 w-5 text-white" />
               </div>
               {isConverting && (

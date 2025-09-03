@@ -686,16 +686,18 @@ export default function FileConverter() {
               </CardHeader>
             </Card>
             {hasMultipleFiles && settings.showArchive && (
-              <Card className="mb-6 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 border-2">
+              <Card className="mb-6 bg-gradient-to-br from-slate-50 to-blue-50 border-slate-200 border-2">
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Package className="h-6 w-6 text-purple-600" />
+                    <div className="flex items-center gap-3 ">
+                      <div className="h-10 w-10 rounded-full bg-slate-600 flex items-center justify-center">
+                        <Package className="h-5 w-5 text-white" />
+                      </div>
                       <div>
-                        <CardTitle className="text-purple-900">
+                        <CardTitle className="text-slate-800">
                           Archive All Files
                         </CardTitle>
-                        <CardDescription className="text-purple-700">
+                        <CardDescription className="text-slate-600">
                           Combine all {totalFileCount} files into a single
                           archive
                         </CardDescription>
@@ -706,14 +708,14 @@ export default function FileConverter() {
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <p className="text-sm font-medium text-purple-800 mb-2 block">
+                      <p className="text-sm font-medium text-slate-700 mb-2 block">
                         Choose archive format:
                       </p>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                         {getArchiveOptions().map((format) => (
                           <Button
                             key={format}
-                            className="h-8 text-xs"
+                            className="h-8 text-xs hover:bg-slate-700"
                             disabled={convertingFilesCount > 0}
                             size="sm"
                             variant={
@@ -734,11 +736,11 @@ export default function FileConverter() {
                       <div className="flex flex-col gap-2 justify-between pt-2 border-t border-purple-200">
                         {settings.namingConventionArchive === "ask" && (
                           <div className="space-y-2">
-                            <Label className="text-purple-900" htmlFor="prefix">
+                            <Label className="text-slate-800" htmlFor="prefix">
                               Set a name for your archive
                             </Label>
                             <Input
-                              className="bg-white"
+                              className="bg-white focus-visible:border-slate-500 focus-visible:ring-slate-500"
                               id="prefix"
                               placeholder="myArchive"
                               value={archiveName}
@@ -747,12 +749,12 @@ export default function FileConverter() {
                           </div>
                         )}
                         <div className="flex items-center justify-between w-full">
-                          <p className="text-sm text-purple-800">
+                          <p className="text-sm text-slate-800">
                             Archive as: files.
                             {selectedArchiveFormat.toLowerCase()}
                           </p>
                           <Button
-                            className="bg-secondary hover:bg-chart-4"
+                            className="h-8 text-xs bg-slate-600 text-white hover:bg-slate-700"
                             disabled={
                               convertingFilesCount > 0 ||
                               (settings.namingConventionArchive === "ask" &&
@@ -798,17 +800,20 @@ export default function FileConverter() {
               return (
                 <Card
                   key={group.category}
-                  className={`${group.color} border-2`}
+                  className={`${group.color[0] + " " + group.color[1]} border-2`}
                 >
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        {group.icon}
+                      <div className="flex items-center gap-3 ">
+                        <div className={group.color[2]}>{group.icon}</div>
                         <div>
                           <CardTitle className="capitalize flex items-center gap-2">
                             {group.category} Files ({group.files.length})
                             {convertingInGroup > 0 && (
-                              <Badge className="text-xs" variant="secondary">
+                              <Badge
+                                className={"text-xs " + group.color[4]}
+                                variant="secondary"
+                              >
                                 {convertingInGroup} converting...
                               </Badge>
                             )}
@@ -816,7 +821,7 @@ export default function FileConverter() {
                               <Badge
                                 className={
                                   "border-none text-xs text-black " +
-                                  group.color
+                                  group.color[0]
                                 }
                               >
                                 <Globe className="h-3 w-3 mr-1" />
@@ -840,24 +845,27 @@ export default function FileConverter() {
                       </div>
                       {!isSingleFile && (
                         <Button
+                          className={group.color[3]}
                           size="icon"
                           variant="outline"
                           onClick={() => toggleGroupExpansion(group.category)}
                         >
-                          <SettingsIcon className="h-4 w-4" />
+                          <SettingsIcon className={"h-4 w-4"} />
                         </Button>
                       )}
                     </div>
 
                     {!isSingleFile && (
-                      <div className="mt-4 p-4 bg-white/70 rounded-lg border-2 border-dashed border-gray-300">
+                      <div className="mt-4 ">
                         <div className="space-y-4">
                           <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
                             <Globe className="h-4 w-4" />
                             Global Format Selection:
                             {hasGlobalFormat && (
                               <Button
-                                className="ml-auto h-6 text-xs"
+                                className={
+                                  "ml-auto h-6 text-xs " + group.color[3]
+                                }
                                 size="sm"
                                 variant="outline"
                                 onClick={() =>
@@ -875,7 +883,7 @@ export default function FileConverter() {
                               {conversionOptions.map((format) => (
                                 <Button
                                   key={format}
-                                  className="h-8 text-xs bg-transparent"
+                                  className={"h-8 text-xs " + group.color[3]}
                                   disabled={convertingInGroup > 0}
                                   size="sm"
                                   variant="outline"
@@ -890,12 +898,18 @@ export default function FileConverter() {
                           ) : (
                             <div className="flex justify-between items-center gap-4">
                               <div className="flex items-center gap-2">
-                                <Badge className="bg-secondary hover:bg-chart-4">
+                                <Badge
+                                  className={
+                                    group.color[4] + " " + group.color[5]
+                                  }
+                                >
                                   Selected: {group.globalFormat}
                                 </Badge>
                               </div>
                               <Button
-                                className="bg-secondary hover:bg-chart-4"
+                                className={
+                                  group.color[4] + " " + group.color[5]
+                                }
                                 disabled={convertingInGroup > 0}
                                 onClick={() => {
                                   if (!settings.confirmBeforeConvert) {
@@ -967,7 +981,7 @@ export default function FileConverter() {
                               >
                                 <CardContent className="p-4">
                                   <div className="flex items-center justify-between mb-3">
-                                    <div className="flex items-center gap-3">
+                                    <div className={"flex items-center gap-3 "}>
                                       {getFileIcon(uploadedFile.category, "sm")}
                                       <div>
                                         <h4 className="font-medium text-gray-900 text-sm">
@@ -1028,9 +1042,13 @@ export default function FileConverter() {
                                           <Button
                                             key={format}
                                             className={
-                                              isSingleFile
-                                                ? "h-10 text-sm px-4"
-                                                : "h-6 text-xs px-2"
+                                              (isSingleFile
+                                                ? " h-10 text-sm px-4 "
+                                                : " h-6 text-xs px-2 ") +
+                                              group.color[3] +
+                                              " " +
+                                              (uploadedFile.selectedFormat ===
+                                                format && group.color[4])
                                             }
                                             disabled={
                                               uploadedFile.isConverting ||
@@ -1066,9 +1084,10 @@ export default function FileConverter() {
                                           </p>
                                           <Button
                                             className={
-                                              isSingleFile
-                                                ? "h-8 text-sm"
-                                                : "h-6 text-xs"
+                                              (isSingleFile
+                                                ? "h-8 text-sm "
+                                                : "h-6 text-xs ") +
+                                              group.color[5]
                                             }
                                             disabled={uploadedFile.isConverting}
                                             size={

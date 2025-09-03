@@ -5,8 +5,7 @@ import os from "node:os";
 import fs from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 
-import { dialog } from "electron";
-import { app, BrowserWindow, ipcMain, shell } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
 
 import { SaveFileToTemp } from "../Helpers/SaveFile";
 import {
@@ -128,7 +127,7 @@ async function createWindow() {
     menu: null,
   });
 
-  win.removeMenu();
+  // win.removeMenu();
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
@@ -228,7 +227,7 @@ ipcMain.handle("convert", async (_, arg) => {
   const Extension = path.extname(uploadedFile.name);
   let Status: ConvertStatus;
 
-  const LogFile = new Date().toISOString() + ".log";
+  const LogFile = new Date().toDateString() + ".log";
   const logFilePath = path.join(logDir, LogFile);
   const logger = GetLogger(logFilePath);
 
@@ -440,6 +439,16 @@ ipcMain.handle("convert", async (_, arg) => {
     case "BZ2":
       Status = await ToBZ2(OutPath, FilePath, FileName, Extension);
       break;
+  }
+
+  if (!Status) {
+    logger.error("Something went wrong");
+
+    return {
+      progress: 0,
+      status: "error",
+      Logs: ["Something went wrong"],
+    };
   }
 
   if (Status.status === "completed") {
