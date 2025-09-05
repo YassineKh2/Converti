@@ -9,7 +9,7 @@ export function Footer() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <span>
-              Created by <strong>Yassine Khemiri</strong>
+              Created by <strong>YassineKh</strong>
             </span>
           </div>
           <div className="flex items-center gap-1 text-xs">

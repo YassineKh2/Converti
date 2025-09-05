@@ -401,9 +401,9 @@ export default function FileConverter() {
     setIsConverting(true);
     let SuccessfulConverts: number = 0;
     let OutPath = "";
-    const nbFiles = updatedFiles.length;
+    const nbFiles = filesToConvert.length;
 
-    for (const uploadedFile of updatedFiles) {
+    for (const uploadedFile of filesToConvert) {
       //@ts-ignore
       const path = await window.ipcRenderer.showFilePath(uploadedFile.file);
 
@@ -415,7 +415,7 @@ export default function FileConverter() {
       });
       uploadedFile.OutPath = OutPath;
 
-      uploadedFile.order = updatedFiles.indexOf(uploadedFile) + 1;
+      uploadedFile.order = filesToConvert.indexOf(uploadedFile) + 1;
 
       const result: ConvertStatus = await window.ipcRenderer.invoke("convert", {
         uploadedFile,
@@ -598,10 +598,8 @@ export default function FileConverter() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 p-4 flex flex-col justify-between">
       <div className="max-w-6xl mx-auto w-full">
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <h1 className="text-4xl font-bold text-gray-900">
-              Smart File Converter
-            </h1>
+          <div className="flex items-end justify-center gap-4 mb-4">
+            <h1 className="text-5xl font-bold text-gray-900">Converti</h1>
             <Dialog>
               <DialogTrigger asChild>
                 <Button

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AlertCircle,
   CheckCircle,
@@ -9,6 +9,7 @@ import {
   Play,
   Zap,
 } from "lucide-react";
+import { animate, text } from "animejs";
 
 import { UploadedFile } from "@/type/UploadedFile";
 import { AppSettings } from "@/type/AppSettings";
@@ -23,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
+import { getLoadingMessage } from "@/Helpers/getLoadingMessage";
 
 export function ProgressBar({
   files,
@@ -38,6 +40,8 @@ export function ProgressBar({
   const [showLogs, setShowLogs] = useState(
     settings.progressDetail === "detailed",
   );
+  const [randomMessage, setRandomMessage] = useState(getLoadingMessage());
+  const root = useRef(null);
 
   const filesToConvert = files.filter((file) => file.selectedFormat);
   const completedFiles = files.filter((file) => file.status === "completed");
@@ -61,6 +65,36 @@ export function ProgressBar({
         return <Clock className="h-4 w-4 text-gray-400" />;
     }
   };
+
+  useEffect(() => {
+    if (!isConverting) return;
+    const interval = setInterval(() => {
+      const message = getLoadingMessage();
+
+      setRandomMessage(message);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [isConverting]);
+
+  useEffect(() => {
+    if (!isConverting || !root.current) return;
+
+    const element = root.current as HTMLDivElement;
+
+    text.split(element, { lines: { wrap: "clip" } }).addEffect(({ lines }) =>
+      animate(lines, {
+        y: [
+          { to: ["100%", "0%"], duration: 300, ease: "out(3)" },
+          { to: "0%", duration: 4400 },
+          { to: "-100%", duration: 300, ease: "in(3)" },
+        ],
+        ease: "out(3)",
+        loop: true,
+        loopDelay: 0,
+      }),
+    );
+  }, [isConverting, randomMessage]);
 
   if (filesToConvert.length === 0) return null;
 
@@ -205,6 +239,9 @@ export function ProgressBar({
               `Convert All Files (${filesToConvert.length})`
             )}
           </Button>
+        </div>
+        <div ref={root} className="text-center">
+          {isConverting && randomMessage}
         </div>
       </CardContent>
     </Card>
