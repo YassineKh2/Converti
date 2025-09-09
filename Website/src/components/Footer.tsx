@@ -16,7 +16,7 @@ export function Footer() {
                         <p className="text-muted-foreground text-sm mb-4">
                             Privacy-first file conversion that works entirely on your device.
                         </p>
-                        <a
+                        <Link
                             href="https://github.com/YassineKh2/Converti"
                             target="_blank" rel="noopener noreferrer"
                             className="inline-flex items-center text-muted-foreground hover:text-primary transition-colors"
@@ -24,7 +24,7 @@ export function Footer() {
                         >
                             <Github className="w-5 h-5 mr-2"/>
                             View on GitHub
-                        </a>
+                        </Link>
                     </div>
                     <div>
                         <h3 className="font-semibold text-primary mb-4">Product</h3>
@@ -35,14 +35,14 @@ export function Footer() {
                                 </Link>
                             </li>
                             <li>
-                                <a href="#" className="hover:text-primary transition-colors">
+                                <Link href="/#formats" className="hover:text-primary transition-colors">
                                     Supported Formats
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href="#" className="hover:text-primary transition-colors">
+                                <Link href="/download/#requirements" className="hover:text-primary transition-colors">
                                     System Requirements
-                                </a>
+                                </Link>
                             </li>
                             <li>
                                 <Link href="/release-notes" className="hover:text-primary transition-colors">
@@ -55,19 +55,9 @@ export function Footer() {
                         <h3 className="font-semibold text-primary mb-4">Support</h3>
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li>
-                                <a href="#" className="hover:text-primary transition-colors">
+                                <Link target="_blank" rel="noopener noreferrer" href="https://github.com/YassineKh2/Converti" className="hover:text-primary transition-colors">
                                     Documentation
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" className="hover:text-primary transition-colors">
-                                    Tutorials
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" className="hover:text-primary transition-colors">
-                                    Community
-                                </a>
+                                </Link>
                             </li>
                             <li>
                                 <Link href="/contact" className="hover:text-primary transition-colors">
@@ -85,19 +75,9 @@ export function Footer() {
                                 </Link>
                             </li>
                             <li>
-                                <a href="#" className="hover:text-primary transition-colors">
-                                    Privacy Policy
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" className="hover:text-primary transition-colors">
-                                    Terms of Service
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" className="hover:text-primary transition-colors">
+                                <Link target="_blank" rel="noopener noreferrer" href="https://github.com/YassineKh2/Converti" className="hover:text-primary transition-colors">
                                     Open Source Licenses
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </div>

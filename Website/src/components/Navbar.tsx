@@ -32,7 +32,8 @@ export function Navbar() {
                 </nav>
                 <div className="flex items-center space-x-3">
                     <a
-                        href="https://github.com/converti-app/converti"
+                        href="https://github.com/YassineKh2/Converti"
+                        target="_blank" rel="noopener noreferrer"
                         className="text-muted-foreground hover:text-primary transition-colors"
                         aria-label="View on GitHub"
                     >

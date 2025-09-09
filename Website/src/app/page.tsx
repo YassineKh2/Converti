@@ -47,9 +47,11 @@ export default function ConvertiLandingPage() {
                                 Download Converti
                             </Button>
                         </Link>
-                        <Button variant="outline" size="lg" className="px-8 bg-transparent">
-                            Learn More
-                        </Button>
+                        <Link href="/about">
+                            <Button variant="outline" size="lg" className="px-8 bg-transparent">
+                                Learn More
+                            </Button>
+                        </Link>
                     </div>
                     <p className="text-sm text-muted-foreground mt-4">
                         ✓ Windows, Mac & Linux • ✓ No Registration Required • ✓ Always Free
@@ -57,7 +59,7 @@ export default function ConvertiLandingPage() {
                 </div>
             </section>
 
-            <section className="py-16 px-4 bg-muted/30">
+            <section id="formats" className="py-16 px-4 bg-muted/30">
                 <div className="container mx-auto">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl font-bold text-primary mb-4">Support for Every File Type</h2>
@@ -251,9 +253,8 @@ export default function ConvertiLandingPage() {
                             <AccordionTrigger className="text-left">How does local processing work?</AccordionTrigger>
                             <AccordionContent>
                                 Converti runs entirely on your computer using your device's processing power. Your files
-                                are never
-                                uploaded to any server or cloud service. Everything happens locally, ensuring complete
-                                privacy and
+                                are never uploaded to any server or cloud service. It uses popular open-source libraries
+                                to ensure seamless conversion. Everything happens locally, ensuring complete privacy and
                                 security.
                             </AccordionContent>
                         </AccordionItem>
@@ -261,19 +262,8 @@ export default function ConvertiLandingPage() {
                             <AccordionTrigger className="text-left">What archive formats are
                                 supported?</AccordionTrigger>
                             <AccordionContent>
-                                Converti supports creating and extracting ZIP, RAR, 7Z, TAR, GZ, BZ2, and XZ archives.
-                                You can also
-                                convert between different archive formats and customize compression settings.
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="item-4" className="bg-background border rounded-lg px-6">
-                            <AccordionTrigger className="text-left">Can I customize conversion
-                                settings?</AccordionTrigger>
-                            <AccordionContent>
-                                Converti offers extensive customization options including quality settings, resolution,
-                                compression
-                                levels, color profiles, and format-specific parameters. You can save custom presets for
-                                repeated use.
+                                Converti supports creating and extracting ZIP, RAR, 7Z, and GZ archives.
+                                You can also convert between different archive formats
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="item-5" className="bg-background border rounded-lg px-6">
