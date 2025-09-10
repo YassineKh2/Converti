@@ -53,7 +53,7 @@ export function ProgressBar({
       ? (completedFiles.length / filesToConvert.length) * 100
       : 0;
 
-  const getStatusIcon = (status: UploadedFile["Status"]) => {
+  const getStatusIcon = (status: UploadedFile["status"]) => {
     switch (status) {
       case "completed":
         return <CheckCircle className="h-4 w-4 text-green-500" />;
@@ -187,7 +187,7 @@ export function ProgressBar({
                     </div>
                   </div>
 
-                  {showLogs && file.Logs?.length > 0 && (
+                  {showLogs && file.Logs?.length && file.Logs?.length > 0 && (
                     <div className="ml-7 p-2 bg-gray-50 rounded text-xs font-mono space-y-1 border-l-2 border-gray-300">
                       {file.Logs?.map((log, index) => (
                         <div key={index} className="text-gray-600">

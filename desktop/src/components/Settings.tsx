@@ -46,7 +46,7 @@ export function Settings({
     setLocalSettings(settings);
   }, [settings]);
 
-  const SaveSettings = async (settings) => {
+  const SaveSettings = async (settings: AppSettings) => {
     return await window.ipcRenderer.invoke("settings", settings);
   };
   const handleSave = () => {

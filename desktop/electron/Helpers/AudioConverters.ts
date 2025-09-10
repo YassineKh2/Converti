@@ -5,7 +5,7 @@ import { getFFMPEG } from "./GetFFMPEG";
 
 import { ConvertStatus } from "@/type/ConvertStatus";
 
-function SendProgress(progress) {
+function SendProgress(progress:any) {
   console.log("Audio Progress : " + progress?.percent);
 }
 async function convertImage(

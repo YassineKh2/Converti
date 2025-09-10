@@ -73,7 +73,7 @@ async function convertImage(
 
         return Status;
     }
-  } catch (e) {
+  } catch (e:any) {
     Status.progress = 0;
     Status.status = "error";
     Status.Logs = [`Error : ${e.message}`];
@@ -127,7 +127,7 @@ export async function ToSVG(outDir: string, inPath: string, name: string) {
 
   try {
     await writeFile(finalPath, svg);
-  } catch (e) {
+  } catch (e:any) {
     Status.progress = 0;
     Status.status = "error";
     Status.Logs = [`Error: ${e.message}`];
@@ -157,7 +157,7 @@ export async function ToBMP(outDir: string, inPath: string, name: string) {
 
   try {
     await bmp.sharpToBmp(image, finalPath);
-  } catch (e) {
+  } catch (e:any) {
     Status.progress = 0;
     Status.status = "error";
     Status.Logs = [`Error: ${e.message}`];
@@ -185,7 +185,7 @@ export async function ToTIFF(outDir: string, inPath: string, name: string) {
 
   try {
     await image.write(finalPath as never, undefined);
-  } catch (e) {
+  } catch (e:any) {
     Status.progress = 0;
     Status.status = "error";
     Status.Logs = [`Error: ${e.message}`];
@@ -213,7 +213,7 @@ export async function ToICO(outDir: string, inPath: string, name: string) {
 
   try {
     await ico.sharpsToIco([image], finalPath);
-  } catch (e) {
+  } catch (e:any) {
     Status.progress = 0;
     Status.status = "error";
     Status.Logs = [`Error: `, e];

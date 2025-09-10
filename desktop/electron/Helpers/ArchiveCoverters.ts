@@ -81,6 +81,7 @@ async function ExtractRAR(inPath: string, tempFolder: string) {
 
       return result;
     }
+    return result;
   }
 }
 
@@ -118,7 +119,7 @@ async function ArchiveFile(
     } else await run7zCommand(["x", inPath, `-o${tempFolder}`]);
 
     await run7zCommand(["a", finalPath, `${tempFolder}\\*`]);
-  } catch (error) {
+  } catch (error: any) {
     Status.progress = 0;
     Status.status = "error";
     Status.Logs = ["Error during 7z compression:", error.message];

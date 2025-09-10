@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="convertitemplogo.png" alt="Converti Logo" width="300"/>
+  <img src="public/logo.png" alt="Converti Logo" width="300"/>
 </p>
 
 
@@ -61,7 +61,7 @@ Converti uses a mix of modern web technologies and high-performance processing l
 ## 🤝 Contributing
 
 We welcome contributions from the community!
-Whether it’s fixing a bug, adding a new feature, improving documentation, or suggesting ideas — your help is appreciated.
+Whether it’s fixing a bug, adding a new feature, improving documentation, or suggesting ideas, your help is appreciated.
 
 ### Reporting Issues
 If you find a bug or have a feature request, please open an issue in the [Issues tab](../../issues) with:

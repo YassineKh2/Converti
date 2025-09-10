@@ -18,7 +18,7 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
     const [channel, ...omit] = args
     return ipcRenderer.invoke(channel, ...omit)
   },
-  showFilePath (file) {
+  showFilePath (file: File) {
     return webUtils.getPathForFile(file)
   }
 

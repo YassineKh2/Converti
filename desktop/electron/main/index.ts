@@ -123,11 +123,10 @@ async function createWindow() {
       nodeIntegration: false,
     },
     height: 700,
-    width: 900,
-    menu: null,
+    width: 900
   });
 
-  // win.removeMenu();
+  win.removeMenu();
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
@@ -225,7 +224,11 @@ ipcMain.handle("convert", async (_, arg) => {
   const lastDotIndex = uploadedFile.name.lastIndexOf(".");
   let FileName = uploadedFile.name.slice(0, lastDotIndex);
   const Extension = path.extname(uploadedFile.name);
-  let Status: ConvertStatus;
+  let Status: ConvertStatus = {
+    progress: 0,
+    status: "error",
+    Logs: ["Something went wrong"],
+  };
 
   const LogFile = new Date().toDateString() + ".log";
   const logFilePath = path.join(logDir, LogFile);
@@ -260,7 +263,7 @@ ipcMain.handle("convert", async (_, arg) => {
         logger.info("End at :" + new Date().toISOString());
         logger.info("-----------------------------------\n");
 
-        let Status: ConvertStatus = {
+        Status = {
           progress: 0,
           status: "error",
           Logs: ["User canceled file selection !"],
@@ -289,7 +292,7 @@ ipcMain.handle("convert", async (_, arg) => {
         logger.info("End at :" + new Date().toISOString());
         logger.info("-----------------------------------\n");
 
-        let Status: ConvertStatus = {
+        Status = {
           progress: 0,
           status: "error",
           Logs: ["User canceled file selection !"],
@@ -466,7 +469,7 @@ ipcMain.handle("convert", async (_, arg) => {
   if (!settings.autoOpenFolder) return Status;
 
   // For Multiple files
-  if (uploadedFile.order === nbFiles && SuccessfulConverts > 0) {
+  if (uploadedFile.order === nbFiles && SuccessfulConverts && SuccessfulConverts > 0) {
     await shell.openPath(OutPath);
   }
 
@@ -501,7 +504,7 @@ ipcMain.handle("settings", async (_, arg) => {
 
   try {
     await writeFile(settingsPath, JSON.stringify(settings));
-  } catch (e) {
+  } catch (e:any) {
     response.success = false;
     response.reason = e.message;
 
@@ -532,17 +535,23 @@ ipcMain.handle("archive", async (_, arg) => {
   }: {
     uploadedFile: UploadedFileType;
     nbFiles: number;
+    ArchiveName: string;
     SuccessfulArchives?: number;
   } = arg;
 
   const { path: FilePath, selectedArchiveFormat } = uploadedFile;
-  const lastDotIndex = uploadedFile.name.lastIndexOf(".");
-  let FileName = uploadedFile.name.slice(0, lastDotIndex);
-  let Status: ConvertStatus;
+
+  let Status: ConvertStatus = {
+    progress: 0,
+    status: "error",
+    Logs: ["Something went wrong"],
+  };
 
   const LogFile = new Date().toISOString() + ".log";
   const logFilePath = path.join(logDir, LogFile);
   const logger = GetLogger(logFilePath);
+
+  if (!logger) console.log("unable to init logger")
 
   logger.info(
     `Archiving file ${uploadedFile.order} from ${nbFiles} file${nbFiles > 1 && "s"}`,
@@ -572,7 +581,7 @@ ipcMain.handle("archive", async (_, arg) => {
         logger.info("End at :" + new Date().toISOString());
         logger.info("-----------------------------------\n");
 
-        let Status: ConvertStatus = {
+        Status = {
           progress: 0,
           status: "error",
           Logs: ["User canceled file selection !"],
@@ -599,7 +608,7 @@ ipcMain.handle("archive", async (_, arg) => {
         logger.info("End at :" + new Date().toISOString());
         logger.info("-----------------------------------\n");
 
-        let Status: ConvertStatus = {
+        Status = {
           progress: 0,
           status: "error",
           Logs: ["User canceled file selection !"],
@@ -649,7 +658,7 @@ ipcMain.handle("archive", async (_, arg) => {
   if (!settings.autoOpenFolder) return Status;
 
   // For Multiple files
-  if (uploadedFile.order === nbFiles && SuccessfulArchives > 0) {
+  if (uploadedFile.order === nbFiles && SuccessfulArchives && SuccessfulArchives > 0) {
     await shell.openPath(OutPath);
   }
 

@@ -78,7 +78,7 @@ export default function FileConverter() {
   const [confirmModal, setConfirmModal] = useState({
     show: false,
     action: "",
-    functionRef: (files?: UploadedFileType[]) => {},
+    functionRef: (files?: UploadedFileType[]) => {}
   });
   const handleDragOver = useCallback((e: DragEvent) => {
     e.preventDefault();
@@ -256,7 +256,7 @@ export default function FileConverter() {
       setConfirmModal({
         show: false,
         action: "",
-        functionRef: null,
+        functionRef: ()=> {},
       });
     }
 
@@ -356,7 +356,7 @@ export default function FileConverter() {
       setConfirmModal({
         show: false,
         action: "",
-        functionRef: null,
+        functionRef: ()=> {},
       });
     }
 
@@ -452,7 +452,7 @@ export default function FileConverter() {
       setConfirmModal({
         show: false,
         action: "",
-        functionRef: null,
+        functionRef: ()=> {},
       });
     }
 
@@ -542,7 +542,7 @@ export default function FileConverter() {
       setConfirmModal({
         show: false,
         action: "",
-        functionRef: null,
+        functionRef: ()=> {},
       });
     }
 
@@ -980,7 +980,7 @@ export default function FileConverter() {
                                 <CardContent className="p-4">
                                   <div className="flex items-center justify-between mb-3">
                                     <div className={"flex items-center gap-3 "}>
-                                      {getFileIcon(uploadedFile.category, "sm")}
+                                      {getFileIcon(uploadedFile.category)}
                                       <div>
                                         <h4 className="font-medium text-gray-900 text-sm">
                                           {uploadedFile.name}
@@ -1160,7 +1160,7 @@ export default function FileConverter() {
                 setConfirmModal({
                   show: false,
                   action: "",
-                  functionRef: null,
+                  functionRef: ()=> {},
                 });
               }}
             >
@@ -1179,7 +1179,7 @@ export default function FileConverter() {
                       setConfirmModal({
                         show: false,
                         action: "",
-                        functionRef: null,
+                        functionRef: ()=> {},
                       });
                     }}
                   >
@@ -1195,7 +1195,7 @@ export default function FileConverter() {
                       setConfirmModal({
                         show: false,
                         action: "",
-                        functionRef: null,
+                        functionRef: ()=> {},
                       });
                     }}
                   >

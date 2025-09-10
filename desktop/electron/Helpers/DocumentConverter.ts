@@ -6,7 +6,7 @@ import { getPANDOC } from "./GetPANDOC";
 
 import { ConvertStatus } from "@/type/ConvertStatus";
 
-async function convertFileWithPandoc(pandocPath, inPath, finalPath) {
+async function convertFileWithPandoc(pandocPath: string, inPath: string, finalPath: string) {
   return new Promise<ConvertStatus>((resolve, reject) => {
     let stderrOutput = "";
     let Status: ConvertStatus = {
@@ -58,7 +58,7 @@ async function convertFileWithPandoc(pandocPath, inPath, finalPath) {
   });
 }
 
-export async function ToPDF(outDir, inPath, name) {
+export async function ToPDF(outDir:string, inPath:string, name:string) {
   const safeName = SanitizeFileName(name);
   const finalPath = path.join(outDir, `${safeName}.pdf`);
 
@@ -67,7 +67,7 @@ export async function ToPDF(outDir, inPath, name) {
   return await convertFileWithPandoc(pandocPath, inPath, finalPath);
 }
 
-export async function ToRTF(outDir, inPath, name) {
+export async function ToRTF(outDir:string, inPath:string, name:string) {
   const safeName = SanitizeFileName(name);
   const finalPath = path.join(outDir, `${safeName}.rtf`);
 
@@ -76,7 +76,7 @@ export async function ToRTF(outDir, inPath, name) {
   return await convertFileWithPandoc(pandocPath, inPath, finalPath);
 }
 
-export async function ToTXT(outDir, inPath, name) {
+export async function ToTXT(outDir:string, inPath:string, name:string) {
   const safeName = SanitizeFileName(name);
   const finalPath = path.join(outDir, `${safeName}.txt`);
 
@@ -85,7 +85,7 @@ export async function ToTXT(outDir, inPath, name) {
   return await convertFileWithPandoc(pandocPath, inPath, finalPath);
 }
 
-export async function ToDOCX(outDir, inPath, name) {
+export async function ToDOCX(outDir:string, inPath:string, name:string) {
   const safeName = SanitizeFileName(name);
   const finalPath = path.join(outDir, `${safeName}.docx`);
 
@@ -94,7 +94,7 @@ export async function ToDOCX(outDir, inPath, name) {
   return await convertFileWithPandoc(pandocPath, inPath, finalPath);
 }
 
-export async function ToHTML(outDir, inPath, name) {
+export async function ToHTML(outDir:string, inPath:string, name:string) {
   const safeName = SanitizeFileName(name);
   const finalPath = path.join(outDir, `${safeName}.html`);
 
@@ -103,7 +103,7 @@ export async function ToHTML(outDir, inPath, name) {
   return await convertFileWithPandoc(pandocPath, inPath, finalPath);
 }
 
-export async function ToEPUB(outDir, inPath, name) {
+export async function ToEPUB(outDir:string, inPath:string, name:string) {
   const safeName = SanitizeFileName(name);
   const finalPath = path.join(outDir, `${safeName}.epub`);
 
@@ -112,7 +112,7 @@ export async function ToEPUB(outDir, inPath, name) {
   return await convertFileWithPandoc(pandocPath, inPath, finalPath);
 }
 
-export async function ToODT(outDir, inPath, name) {
+export async function ToODT(outDir:string, inPath:string, name:string) {
   const safeName = SanitizeFileName(name);
   const finalPath = path.join(outDir, `${safeName}.odt`);
 

@@ -36,7 +36,7 @@ async function ArchiveFile(
 
   try {
     await run7zCommand(["a", finalPath, inPath]);
-  } catch (error) {
+  } catch (error: any) {
     Status.progress = 0;
     Status.status = "error";
     Status.Logs = ["Error during 7z compression:", error.message];
