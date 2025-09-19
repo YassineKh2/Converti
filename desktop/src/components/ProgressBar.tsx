@@ -1,249 +1,330 @@
-import { useEffect, useRef, useState } from "react";
-import {
-  AlertCircle,
-  CheckCircle,
-  ChevronDown,
-  ChevronUp,
-  Clock,
-  Download,
-  Play,
-  Zap,
-} from "lucide-react";
-import { animate, text } from "animejs";
+import {useEffect, useRef, useState} from "react";
+import {AlertCircle, CheckCircle, ChevronDown, ChevronUp, Clock, Download, Play, X, Zap,} from "lucide-react";
+import {animate, text} from "animejs";
 
-import { UploadedFile } from "@/type/UploadedFile";
-import { AppSettings } from "@/type/AppSettings";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Spinner } from "@/components/ui/shadcn-io/spinner";
-import { getLoadingMessage } from "@/Helpers/getLoadingMessage";
+import {UploadedFile} from "@/type/UploadedFile";
+import {AppSettings} from "@/type/AppSettings";
+import {Card, CardContent, CardDescription, CardHeader, CardTitle,} from "@/components/ui/card";
+import {Button} from "@/components/ui/button";
+import {Progress} from "@/components/ui/progress";
+import {Spinner} from "@/components/ui/shadcn-io/spinner";
+import {getLoadingMessage} from "@/Helpers/getLoadingMessage";
+import {Badge} from "@/components/ui/badge";
+import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "@/components/ui/dialog";
+
 
 export function ProgressBar({
-  files,
-  settings,
-  onConvertAll,
-  isConverting,
-}: {
-  files: UploadedFile[];
-  settings: AppSettings;
-  onConvertAll: () => void;
-  isConverting: boolean;
+                                files,
+                                settings,
+                                onConvertAll,
+                                isConverting,
+                                removeFile
+                            }: {
+    files: UploadedFile[];
+    settings: AppSettings;
+    onConvertAll: () => void;
+    isConverting: boolean;
+    removeFile: (idFile: string) => void;
 }) {
-  const [showLogs, setShowLogs] = useState(
-    settings.progressDetail === "detailed",
-  );
-  const [randomMessage, setRandomMessage] = useState(getLoadingMessage());
-  const root = useRef(null);
-
-  const filesToConvert = files.filter((file) => file.selectedFormat);
-  const completedFiles = files.filter((file) => file.status === "completed");
-  const errorFiles = files.filter((file) => file.status === "error");
-  const convertingFiles = files.filter((file) => file.isConverting);
-
-  const overallProgress =
-    filesToConvert.length > 0
-      ? (completedFiles.length / filesToConvert.length) * 100
-      : 0;
-
-  const getStatusIcon = (status: UploadedFile["status"]) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case "error":
-        return <AlertCircle className="h-4 w-4 text-red-500" />;
-      case "converting":
-        return <Play className="h-4 w-4 text-blue-500 animate-pulse" />;
-      default:
-        return <Clock className="h-4 w-4 text-gray-400" />;
-    }
-  };
-
-  useEffect(() => {
-    if (!isConverting) return;
-    const interval = setInterval(() => {
-      const message = getLoadingMessage();
-
-      setRandomMessage(message);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [isConverting]);
-
-  useEffect(() => {
-    if (!isConverting || !root.current) return;
-
-    const element = root.current as HTMLDivElement;
-
-    text.split(element, { lines: { wrap: "clip" } }).addEffect(({ lines }) =>
-      animate(lines, {
-        y: [
-          { to: ["100%", "0%"], duration: 300, ease: "out(3)" },
-          { to: "0%", duration: 4400 },
-          { to: "-100%", duration: 300, ease: "in(3)" },
-        ],
-        ease: "out(3)",
-        loop: true,
-        loopDelay: 0,
-      }),
+    const [showLogs, setShowLogs] = useState(
+        settings.progressDetail === "detailed",
     );
-  }, [isConverting, randomMessage]);
+    const [randomMessage, setRandomMessage] = useState(getLoadingMessage());
+    const [isHovered, setIsHovered] = useState({
+        id: "",
+        hovered: false
+    });
 
-  if (filesToConvert.length === 0) return null;
+    const [confirmModal, setConfirmModal] = useState({
+        show: false,
+        file: {} as UploadedFile
+    });
 
-  return (
-    <Card className="mb-6 bg-gradient-to-r from-slate-50 to-gray-50 border-2 border-slate-200">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="h-10 w-10 rounded-full bg-slate-600 flex items-center justify-center">
-                <Download className="h-5 w-5 text-white" />
-              </div>
-              {isConverting && (
-                <div className="absolute -top-1 -right-1 h-3 w-3 bg-green-500 rounded-full animate-pulse" />
-              )}
-            </div>
-            <div>
-              <CardTitle className="text-lg">Conversion Progress</CardTitle>
-              <CardDescription>
-                {completedFiles.length} of {filesToConvert.length} files
-                converted
-                {errorFiles.length > 0 && ` • ${errorFiles.length} errors`}
-              </CardDescription>
-            </div>
-          </div>
-        </div>
-      </CardHeader>
+    const root = useRef(null);
 
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-medium">Overall Progress</span>
-            <span className="text-gray-600">
+    const filesToConvert = files.filter((file) => file.selectedFormat);
+    const completedFiles = files.filter((file) => file.status === "completed");
+    const errorFiles = files.filter((file) => file.status === "error");
+    const convertingFiles = files.filter((file) => file.isConverting);
+
+    const overallProgress =
+        filesToConvert.length > 0
+            ? (completedFiles.length / filesToConvert.length) * 100
+            : 0;
+
+    const getStatusIcon = (status: UploadedFile["status"]) => {
+        switch (status) {
+            case "completed":
+                return <CheckCircle className="h-4 w-4 text-green-500"/>;
+            case "error":
+                return <AlertCircle className="h-4 w-4 text-red-500"/>;
+            case "converting":
+                return <Play className="h-4 w-4 text-blue-500 animate-pulse"/>;
+            default:
+                return <Clock className="h-4 w-4 text-gray-400"/>;
+        }
+    };
+
+    useEffect(() => {
+        if (!isConverting) return;
+        const interval = setInterval(() => {
+            const message = getLoadingMessage();
+
+            setRandomMessage(message);
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [isConverting]);
+
+    useEffect(() => {
+        if (!isConverting || !root.current) return;
+
+        const element = root.current as HTMLDivElement;
+
+        text.split(element, {lines: {wrap: "clip"}}).addEffect(({lines}) =>
+            animate(lines, {
+                y: [
+                    {to: ["100%", "0%"], duration: 300, ease: "out(3)"},
+                    {to: "0%", duration: 4400},
+                    {to: "-100%", duration: 300, ease: "in(3)"},
+                ],
+                ease: "out(3)",
+                loop: true,
+                loopDelay: 0,
+            }),
+        );
+    }, [isConverting, randomMessage]);
+
+    if (filesToConvert.length === 0) return null;
+
+    const handleMouseEnter = (file: UploadedFile) => {
+        setIsHovered({id: file.id, hovered: true})
+    };
+
+    const handleMouseLeave = () => {
+        setIsHovered({id: "", hovered: false})
+    };
+
+
+    return (
+        <>
+            <Card className="mb-6 bg-gradient-to-r from-slate-50 to-gray-50 border-2 border-slate-200">
+                <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="relative">
+                                <div className="h-10 w-10 rounded-full bg-slate-600 flex items-center justify-center">
+                                    <Download className="h-5 w-5 text-white"/>
+                                </div>
+                                {isConverting && (
+                                    <div
+                                        className="absolute -top-1 -right-1 h-3 w-3 bg-green-500 rounded-full animate-pulse"/>
+                                )}
+                            </div>
+                            <div>
+                                <CardTitle className="text-lg">Conversion Progress</CardTitle>
+                                <CardDescription>
+                                    {completedFiles.length} of {filesToConvert.length} files
+                                    converted
+                                    {errorFiles.length > 0 && ` • ${errorFiles.length} errors`}
+                                </CardDescription>
+                            </div>
+                        </div>
+                    </div>
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                            <span className="font-medium">Overall Progress</span>
+                            <span className="text-gray-600">
               {Math.round(overallProgress)}%
             </span>
-          </div>
-          <Progress className="h-2" value={overallProgress} />
-        </div>
+                        </div>
+                        <Progress className="h-2" value={overallProgress}/>
+                    </div>
 
-        {settings.progressDetail !== "minimal" && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium text-gray-700">
-                File Conversion Status
-              </h4>
-              <Button
-                className="h-6 text-xs"
-                size="sm"
-                variant="ghost"
-                onClick={() => setShowLogs(!showLogs)}
-              >
-                {showLogs ? (
-                  <>
-                    <ChevronUp className="h-3 w-3 mr-1" />
-                    Hide Logs
-                  </>
-                ) : (
-                  <>
-                    <ChevronDown className="h-3 w-3 mr-1" />
-                    Show Logs
-                  </>
-                )}
-              </Button>
-            </div>
+                    {settings.progressDetail !== "minimal" && (
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <h4 className="text-sm font-medium text-gray-700">
+                                    File Conversion Status
+                                </h4>
+                                <Button
+                                    className="h-6 text-xs"
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setShowLogs(!showLogs)}
+                                >
+                                    {showLogs ? (
+                                        <>
+                                            <ChevronUp className="h-3 w-3 mr-1"/>
+                                            Hide Logs
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ChevronDown className="h-3 w-3 mr-1"/>
+                                            Show Logs
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
 
-            <div className="max-h-64 overflow-y-auto space-y-2 bg-white/50 rounded-lg p-3 border">
-              {filesToConvert.map((file) => (
-                <div key={file.id} className="space-y-2">
-                  <div className="flex items-center gap-3 p-2 rounded-md bg-white/70 border">
-                    {getStatusIcon(file.status)}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {file.name}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <Badge className="text-xs" variant="outline">
-                            → {file.selectedFormat}
-                          </Badge>
-                          {file.isConverting && (
-                            <span className="text-xs text-blue-600">
+                            <div className="max-h-64 overflow-y-auto space-y-2 bg-white/50 rounded-lg p-3 border">
+                                {filesToConvert.map((file) => (
+                                    <div onMouseEnter={() => {
+                                        handleMouseEnter(file)
+                                    }}
+                                         onMouseLeave={handleMouseLeave}
+                                         key={file.id} className="space-y-2">
+                                        <div className="flex items-center gap-3 p-2 rounded-md bg-white/70 border">
+                                            {!isConverting && isHovered.hovered && isHovered.id === file.id ?
+                                                <X onClick={() => {
+                                                    setConfirmModal({
+                                                        show: true,
+                                                        file: file
+                                                    })
+                                                }}
+                                                   className="h-4 w-4 text-red-500 hover:text-red-600"/> : getStatusIcon(file.status)}
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center justify-between">
+                                                    <p className="text-sm font-medium text-gray-900 truncate">
+                                                        {file.name}
+                                                    </p>
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge className="text-xs" variant="outline">
+                                                            → {file.selectedFormat}
+                                                        </Badge>
+                                                        {file.isConverting && (
+                                                            <span className="text-xs text-blue-600">
                               {file.progress}%
                             </span>
-                          )}
-                        </div>
-                      </div>
-                      {file.isConverting && (
-                        <Progress className="h-1 mt-1" value={file.progress} />
-                      )}
-                    </div>
-                  </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                {file.isConverting && (
+                                                    <Progress className="h-1 mt-1" value={file.progress}/>
+                                                )}
+                                            </div>
+                                        </div>
 
-                  {showLogs && file.Logs?.length && file.Logs?.length > 0 && (
-                    <div className="ml-7 p-2 bg-gray-50 rounded text-xs font-mono space-y-1 border-l-2 border-gray-300">
-                      {file.Logs?.map((log, index) => (
-                        <div key={index} className="text-gray-600">
-                          {log}
+                                        {showLogs && file.Logs?.length && file.Logs?.length > 0 && (
+                                            <div
+                                                className="ml-7 p-2 bg-gray-50 rounded text-xs font-mono space-y-1 border-l-2 border-gray-300">
+                                                {file.Logs?.map((log, index) => (
+                                                    <div key={index} className="text-gray-600">
+                                                        {log}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                      ))}
+                    )}
+                    <div className="grid grid-cols-3 gap-4 pt-2 border-t">
+                        <div className="text-center">
+                            <div className="text-lg font-semibold text-green-600">
+                                {completedFiles.length}
+                            </div>
+                            <div className="text-xs text-gray-500">Completed</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-lg font-semibold">
+                                {convertingFiles.length}
+                            </div>
+                            <div className="text-xs text-gray-500">Converting</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-lg font-semibold text-red-600">
+                                {errorFiles.length}
+                            </div>
+                            <div className="text-xs text-gray-500">Errors</div>
+                        </div>
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        <div className="grid grid-cols-3 gap-4 pt-2 border-t">
-          <div className="text-center">
-            <div className="text-lg font-semibold text-green-600">
-              {completedFiles.length}
-            </div>
-            <div className="text-xs text-gray-500">Completed</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-semibold">
-              {convertingFiles.length}
-            </div>
-            <div className="text-xs text-gray-500">Converting</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-semibold text-red-600">
-              {errorFiles.length}
-            </div>
-            <div className="text-xs text-gray-500">Errors</div>
-          </div>
-        </div>
 
-        <div className="pt-2 border-t">
-          <Button
-            className="w-full bg-secondary hover:bg-chart-4"
-            disabled={isConverting || filesToConvert.length === 0}
-            size="lg"
-            onClick={onConvertAll}
-          >
-            <Zap className="h-4 w-4 mr-2" />
-            {isConverting ? (
-              <div className="flex items-center gap-5">
-                <div>Converting Files</div>
-                <Spinner variant="circle" />
-              </div>
-            ) : (
-              `Convert All Files (${filesToConvert.length})`
-            )}
-          </Button>
-        </div>
-        <div ref={root} className="text-center">
-          {isConverting && randomMessage}
-        </div>
-      </CardContent>
-    </Card>
-  );
+                    <div className="pt-2 border-t">
+                        <Button
+                            className="w-full bg-secondary hover:bg-chart-4"
+                            disabled={isConverting || filesToConvert.length === 0}
+                            size="lg"
+                            onClick={onConvertAll}
+                        >
+                            <Zap className="h-4 w-4 mr-2"/>
+                            {isConverting ? (
+                                <div className="flex items-center gap-5">
+                                    <div>Converting Files</div>
+                                    <Spinner variant="circle"/>
+                                </div>
+                            ) : (
+                                `Convert All Files (${filesToConvert.length})`
+                            )}
+                        </Button>
+                    </div>
+                    <div ref={root} className="text-center">
+                        {isConverting && randomMessage}
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Dialog
+                open={confirmModal.show}
+                onOpenChange={() => {
+                    setConfirmModal({
+                        show: false,
+                        file: {} as UploadedFile
+                    });
+                }}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            <div className="flex flex-col justify-center items-center gap-5">
+                                <div className="rounded-full border-red-500 border-4">
+                                    <X size={64} className='text-red-500'/>
+                                </div>
+                                <p className="text-3xl text-gray-600">
+                                    Confirm Removal
+                                </p>
+                            </div>
+                        </DialogTitle>
+                        <DialogDescription>
+                            <p className="text-center text-lg my-4">
+                                Are you sure you to
+                                remove <strong>{confirmModal.file?.name || "this file"}</strong> from the
+                                conversion
+                            </p>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-between items-center gap-2">
+                        <Button
+                            variant="default"
+                            onClick={() => {
+                                setConfirmModal({
+                                    show: false,
+                                    file: {} as UploadedFile
+                                });
+                            }}
+                        >
+                            No, Don&#39;t remove
+
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={() => {
+                                removeFile(confirmModal.file?.id as string)
+                                setConfirmModal({
+                                    show: false,
+                                    file: {} as UploadedFile
+                                });
+                            }}
+                        >
+                            Yes, remove file
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+        </>
+    );
 }

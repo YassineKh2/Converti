@@ -11,12 +11,13 @@ export const metadata: Metadata = {
         "Convert files locally with complete privacy. Support for images, videos, audio, documents, and archives. No cloud uploads, completely free.",
 }
 
-export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
+export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
     return (
         <html lang="en">
-            <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
-             <Suspense fallback={null}>{children}</Suspense>
-            </body>
+
+        <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
+        <Suspense fallback={null}>{children}</Suspense>
+        </body>
         </html>
     )
 }

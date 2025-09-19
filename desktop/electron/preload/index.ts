@@ -52,28 +52,17 @@ const safeDOM = {
   },
 }
 
-/**
- * https://tobiasahlin.com/spinkit
- * https://connoratherton.com/loaders
- * https://projects.lukehaas.me/css-loaders
- * https://matejkustec.github.io/SpinThatShit
- */
 function useLoading() {
-  const className = `loaders-css__square-spin`
   const styleContent = `
-@keyframes square-spin {
-  25% { transform: perspective(100px) rotateX(180deg) rotateY(0); }
-  50% { transform: perspective(100px) rotateX(180deg) rotateY(180deg); }
-  75% { transform: perspective(100px) rotateX(0) rotateY(180deg); }
-  100% { transform: perspective(100px) rotateX(0) rotateY(0); }
+@keyframes spin-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
 }
-.${className} > div {
-  animation-fill-mode: both;
-  width: 50px;
-  height: 50px;
-  background: #fff;
-  animation: square-spin 3s 0s cubic-bezier(0.09, 0.57, 0.49, 0.9) infinite;
+
+.animate-spin-reverse {
+  animation: spin-reverse 3s linear infinite;
 }
+
 .app-loading-wrap {
   position: fixed;
   top: 0;
@@ -83,17 +72,25 @@ function useLoading() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #282c34;
+  background: linear-gradient(to bottom right, #f5f3ff, #e0e7ff);
   z-index: 9;
 }
     `
   const oStyle = document.createElement('style')
   const oDiv = document.createElement('div')
 
-  oStyle.id = 'app-loading-style'
-  oStyle.innerHTML = styleContent
-  oDiv.className = 'app-loading-wrap'
-  oDiv.innerHTML = `<div class="${className}"><div></div></div>`
+
+  oStyle.id = 'app-loading-style';
+  oStyle.innerHTML = styleContent;
+
+  oDiv.className = 'app-loading-wrap';
+  oDiv.innerHTML = `
+  <img src="/Logo.png" 
+     width="54" height="54"
+     class="h-14 w-14 animate-spin-reverse"
+     style="animation-duration: 3s;" 
+     alt="logo" />
+`;
 
   return {
     appendLoading() {

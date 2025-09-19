@@ -1,7 +1,7 @@
-import { AppSettings } from "@/type/AppSettings";
+import {AppSettings, InternalAppSettings} from "@/type/AppSettings";
 
 export const defaultSettings: AppSettings = {
-  saveLocation: "original",
+  saveLocation: "askOnce",
   customSaveLocation: "",
   notifications: true,
   namingConvention: "original",
@@ -11,7 +11,11 @@ export const defaultSettings: AppSettings = {
   namingArchive: "myArchive",
   removeTimestamp: false,
   progressDetail: "standard",
-  autoOpenFolder: false,
+  autoOpenFolder: true,
   confirmBeforeConvert: false,
   showArchive: true,
 };
+
+export const appSettings:InternalAppSettings  = {
+  firstLunch : true
+}

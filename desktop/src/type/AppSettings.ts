@@ -13,3 +13,6 @@ export interface AppSettings {
   confirmBeforeConvert: boolean;
   showArchive: boolean;
 }
+export interface InternalAppSettings {
+  firstLunch : boolean
+}

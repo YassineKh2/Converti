@@ -21,7 +21,6 @@ export const getConversionOptions = (
     archive: ["ZIP", "RAR", "7Z", "TAR", "GZ", "BZ2"],
     other: [],
   };
-
   const availableOptions = options[category] || options.other;
   const currentExt = currentType.split("/")[1]?.toUpperCase();
 

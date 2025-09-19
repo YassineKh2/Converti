@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {Archive, Github} from "lucide-react";
+import Image from "next/image";
 
 export function Footer() {
     return (
@@ -9,7 +10,7 @@ export function Footer() {
                     <div>
                         <Link href="/" className="flex items-center space-x-2 mb-4">
                             <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
-                                <Archive className="w-5 h-5 text-accent-foreground"/>
+                                <Image src="/Logo.png" width={15} height={15} alt="logo"/>
                             </div>
                             <span className="text-xl font-bold text-primary">Converti</span>
                         </Link>
@@ -30,7 +31,7 @@ export function Footer() {
                         <h3 className="font-semibold text-primary mb-4">Product</h3>
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li>
-                                <Link href="/#features" className="hover:text-primary transition-colors">
+                                <Link href="/features" className="hover:text-primary transition-colors">
                                     Features
                                 </Link>
                             </li>

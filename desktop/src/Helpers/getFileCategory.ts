@@ -3,7 +3,6 @@ export const getFileCategory = (type: string): string => {
   if (type.startsWith("video/")) return "video";
   if (type.startsWith("audio/")) return "audio";
   if (
-    type.includes("pdf") ||
     type.includes("document") ||
     type.includes("text")
   )

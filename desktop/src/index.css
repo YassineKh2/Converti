@@ -118,3 +118,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .animate-spin-reverse {
+    @apply animate-spin;
+    animation-direction: reverse;
+  }
+}

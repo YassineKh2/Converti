@@ -249,6 +249,15 @@ export default function ConvertiLandingPage() {
                                 available to everyone, forever.
                             </AccordionContent>
                         </AccordionItem>
+                        <AccordionItem value="item-6" className="bg-background border rounded-lg px-6">
+                            <AccordionTrigger className="text-left">What file types are supported ?</AccordionTrigger>
+                            <AccordionContent>
+                                Converti supports a wide range of file types, including images (JPG, JPEG, PNG, WEBP,
+                                GIF, AVIF, SVG, BMP, TIFF, ICO), videos (MP4, AVI, MOV, WMV, FLV, MKV, WEBM, M4V), audio
+                                (MP3, WAV, FLAC, AAC, OGG, M4A, WMA), documents (PDF, DOCX, TXT, RTF, ODT, HTML, EPUB),
+                                and archives (ZIP, RAR, 7Z, TAR, GZ, BZ2).
+                            </AccordionContent>
+                        </AccordionItem>
                         <AccordionItem value="item-2" className="bg-background border rounded-lg px-6">
                             <AccordionTrigger className="text-left">How does local processing work?</AccordionTrigger>
                             <AccordionContent>
@@ -291,12 +300,7 @@ export default function ConvertiLandingPage() {
                             <Button size="lg"
                                     className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-8">
                                 <Download className="w-5 h-5 mr-2"/>
-                                Download for Windows
-                            </Button>
-                        </Link>
-                        <Link href="/download">
-                            <Button variant="outline" size="lg" className="px-8 bg-transparent">
-                                View All Platforms
+                                Download Converti
                             </Button>
                         </Link>
                     </div>
