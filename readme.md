@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/banner.jpg" alt="Converti Logo" width="300"/>
+  <img src="public/banner.jpg" alt="Converti Logo"/>
 </p>
 
 
