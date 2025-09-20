@@ -1,17 +1,17 @@
 export const isFileSupported = (type: string): boolean => {
 
-  if (
-      type.startsWith("image/") ||
-      type.startsWith("video/") ||
-      type.startsWith("audio/") ||
-      type.includes("document") ||
-      type.includes("text")
-  )
-    return true;
-
-
-  return type.includes("zip") || type.includes("rar") || type.includes("7z");
-
-
+    // TODO make supported file verification stricter and merge this function with getFileCategory
+    return (
+        type.startsWith("image/") ||
+        type.startsWith("video/") ||
+        type.startsWith("audio/") ||
+        type.includes("document") ||
+        type.includes("text")     ||
+        type.includes("zip")      ||
+        type.includes("tar")      ||
+        type.includes("rar")      ||
+        type.includes("bz2")      ||
+        type.includes("7z")
+    )
 
 };

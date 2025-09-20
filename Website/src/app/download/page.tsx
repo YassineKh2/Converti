@@ -76,7 +76,7 @@ export default function DownloadPage() {
                                         handleDownload(
                                             "converti-1.0.0-windows-x64.exe",
                                             "Windows",
-                                            "https://drive.google.com/uc?export=download&id=1cIzZiGVOuTqw2PTX3ThgwVkGRG5zpjpF",
+                                            "https://www.dropbox.com/scl/fi/asf8vmumxwjww9sm49u0b/Converti_1.0.0.exe?rlkey=l9hxe0o6mf56s3nj7ndcwhlfw&st=4j3dfywl&dl=1",
                                         )
                                     }
                                 >
@@ -86,7 +86,7 @@ export default function DownloadPage() {
                                 <p className="text-sm text-muted-foreground">
                                     converti-1.0.0-windows-x64.exe
                                     <br/>
-                                    Size: 45.2 MB
+                                    Size: 190 MB
                                 </p>
                             </CardContent>
                         </Card>
@@ -114,7 +114,7 @@ export default function DownloadPage() {
                                 <p className="text-sm text-muted-foreground">
                                     converti-1.0.0-macos-universal.dmg
                                     <br/>
-                                    Size: 52.8 MB
+                                    Size: 190 MB
                                 </p>
                             </CardContent>
                         </Card>
@@ -142,7 +142,7 @@ export default function DownloadPage() {
                                 <p className="text-sm text-muted-foreground">
                                     converti-1.0.0-linux-x64.AppImage
                                     <br/>
-                                    Size: 48.1 MB
+                                    Size: 190 MB
                                 </p>
                             </CardContent>
                         </Card>
@@ -216,7 +216,7 @@ export default function DownloadPage() {
                                     <HardDrive className="w-4 h-4 mt-1 text-accent"/>
                                     <div>
                                         <div className="font-medium text-sm">Storage</div>
-                                        <div className="text-sm text-muted-foreground">200 MB free space</div>
+                                        <div className="text-sm text-muted-foreground">800 MB free space</div>
                                     </div>
                                 </div>
                                 <div className="flex items-start space-x-3">
@@ -255,7 +255,7 @@ export default function DownloadPage() {
                                     <HardDrive className="w-4 h-4 mt-1 text-accent"/>
                                     <div>
                                         <div className="font-medium text-sm">Storage</div>
-                                        <div className="text-sm text-muted-foreground">250 MB free space</div>
+                                        <div className="text-sm text-muted-foreground">800 MB free space</div>
                                     </div>
                                 </div>
                                 <div className="flex items-start space-x-3">
@@ -294,7 +294,7 @@ export default function DownloadPage() {
                                     <HardDrive className="w-4 h-4 mt-1 text-accent"/>
                                     <div>
                                         <div className="font-medium text-sm">Storage</div>
-                                        <div className="text-sm text-muted-foreground">220 MB free space</div>
+                                        <div className="text-sm text-muted-foreground">800 MB free space</div>
                                     </div>
                                 </div>
                                 <div className="flex items-start space-x-3">
@@ -302,185 +302,6 @@ export default function DownloadPage() {
                                     <div>
                                         <div className="font-medium text-sm">Distribution</div>
                                         <div className="text-sm text-muted-foreground">Ubuntu 20.04+</div>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </div>
-            </section>
-
-            <section className="py-16 px-4">
-                <div className="container mx-auto max-w-4xl">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold text-primary mb-4">Installation Instructions</h2>
-                        <p className="text-muted-foreground">Simple steps to get Converti running on your system</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center">
-                                    <Monitor className="w-5 h-5 mr-2"/>
-                                    Windows Installation
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="flex items-start space-x-3">
-                                    <div
-                                        className="w-6 h-6 bg-accent rounded-full flex items-center justify-center text-xs font-bold text-accent-foreground">
-                                        1
-                                    </div>
-                                    <div>
-                                        <div className="font-medium">Download the installer</div>
-                                        <div className="text-sm text-muted-foreground">Click the Windows download button
-                                            above
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start space-x-3">
-                                    <div
-                                        className="w-6 h-6 bg-accent rounded-full flex items-center justify-center text-xs font-bold text-accent-foreground">
-                                        2
-                                    </div>
-                                    <div>
-                                        <div className="font-medium">Run the installer</div>
-                                        <div className="text-sm text-muted-foreground">Double-click the downloaded .exe
-                                            file
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start space-x-3">
-                                    <div
-                                        className="w-6 h-6 bg-accent rounded-full flex items-center justify-center text-xs font-bold text-accent-foreground">
-                                        3
-                                    </div>
-                                    <div>
-                                        <div className="font-medium">Follow the setup wizard</div>
-                                        <div className="text-sm text-muted-foreground">Accept the license and choose
-                                            install location
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start space-x-3">
-                                    <CheckCircle className="w-5 h-5 mt-0.5 text-green-500"/>
-                                    <div>
-                                        <div className="font-medium">Launch Converti</div>
-                                        <div className="text-sm text-muted-foreground">Find it in your Start menu or
-                                            desktop
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center">
-                                    <Monitor className="w-5 h-5 mr-2"/>
-                                    macOS Installation
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="flex items-start space-x-3">
-                                    <div
-                                        className="w-6 h-6 bg-accent rounded-full flex items-center justify-center text-xs font-bold text-accent-foreground">
-                                        1
-                                    </div>
-                                    <div>
-                                        <div className="font-medium">Download the DMG file</div>
-                                        <div className="text-sm text-muted-foreground">Click the macOS download button
-                                            above
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start space-x-3">
-                                    <div
-                                        className="w-6 h-6 bg-accent rounded-full flex items-center justify-center text-xs font-bold text-accent-foreground">
-                                        2
-                                    </div>
-                                    <div>
-                                        <div className="font-medium">Open the DMG file</div>
-                                        <div className="text-sm text-muted-foreground">Double-click to mount the disk
-                                            image
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start space-x-3">
-                                    <div
-                                        className="w-6 h-6 bg-accent rounded-full flex items-center justify-center text-xs font-bold text-accent-foreground">
-                                        3
-                                    </div>
-                                    <div>
-                                        <div className="font-medium">Drag to Applications</div>
-                                        <div className="text-sm text-muted-foreground">Drag Converti to your
-                                            Applications folder
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start space-x-3">
-                                    <CheckCircle className="w-5 h-5 mt-0.5 text-green-500"/>
-                                    <div>
-                                        <div className="font-medium">Launch from Applications</div>
-                                        <div className="text-sm text-muted-foreground">Find Converti in your
-                                            Applications folder
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center">
-                                    <Monitor className="w-5 h-5 mr-2"/>
-                                    Linux Installation
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="flex items-start space-x-3">
-                                    <div
-                                        className="w-6 h-6 bg-accent rounded-full flex items-center justify-center text-xs font-bold text-accent-foreground">
-                                        1
-                                    </div>
-                                    <div>
-                                        <div className="font-medium">Download AppImage</div>
-                                        <div className="text-sm text-muted-foreground">Click the Linux download button
-                                            above
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start space-x-3">
-                                    <div
-                                        className="w-6 h-6 bg-accent rounded-full flex items-center justify-center text-xs font-bold text-accent-foreground">
-                                        2
-                                    </div>
-                                    <div>
-                                        <div className="font-medium">Make executable</div>
-                                        <div className="text-sm text-muted-foreground">chmod +x
-                                            converti-1.0.0-linux-x64.AppImage
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start space-x-3">
-                                    <div
-                                        className="w-6 h-6 bg-accent rounded-full flex items-center justify-center text-xs font-bold text-accent-foreground">
-                                        3
-                                    </div>
-                                    <div>
-                                        <div className="font-medium">Run the AppImage</div>
-                                        <div className="text-sm text-muted-foreground">Double-click or run from
-                                            terminal
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start space-x-3">
-                                    <CheckCircle className="w-5 h-5 mt-0.5 text-green-500"/>
-                                    <div>
-                                        <div className="font-medium">No installation needed</div>
-                                        <div className="text-sm text-muted-foreground">Converti runs directly from the
-                                            AppImage
-                                        </div>
                                     </div>
                                 </div>
                             </CardContent>

@@ -86,9 +86,12 @@ export default function FileConverter() {
 
             if (file.name.includes("7z")) FileType = "7z";
             if (file.name.includes("rar")) FileType = "rar";
+            if (file.name.includes("bz2")) FileType = "bz2";
             if (file.name.includes("flv")) FileType = "video/flv";
             if (file.name.includes("rtf")) FileType = "document | rtf";
             if (file.name.includes("epub")) FileType = "document | epub";
+
+            if (file.name.includes("ppt")) FileType = "unsupported";
 
             const category = getFileCategory(FileType);
 
@@ -442,9 +445,6 @@ export default function FileConverter() {
         setIsConverting(false);
         canceled.current = false;
 
-        if (wasCancelled){
-            toast.warning("Operation was stopped. Some files may have already been converted, while others might be still in progress")
-        }
 
         if (!settings.notifications) return;
         if (SuccessfulConverts === 0) return;
@@ -557,7 +557,10 @@ export default function FileConverter() {
         setUploadedFiles([]);
         setGlobalFormats({});
         setSelectedArchiveFormat("");
-        canceled.current = true
+        if(isConverting) {
+            canceled.current = true
+            toast.warning("Operation was stopped. Some files may have already been converted, while others might be still in progress")
+        }
     };
 
     const toggleGroupExpansion = (category: string) => {
@@ -607,7 +610,7 @@ export default function FileConverter() {
                 <div className="flex justify-center gap-4 items-center text-center mb-8">
                     <div
                         className="size-16 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
-                        <img src="/Logo.png" className="size-8" alt="logo"/>
+                        <img src="Logo.png" className="size-8" alt="logo"/>
                     </div>
                     <div className="flex flex-col items-start justify-start ">
                         <h1 className="text-5xl font-bold text-gray-900">Converti</h1>

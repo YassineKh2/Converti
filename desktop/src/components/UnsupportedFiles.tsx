@@ -87,11 +87,12 @@ export function UnsupportedFilesScreen({
                   <strong>Audio:</strong> MP3, WAV, FLAC, AAC, OGG, M4A, WMA
                 </div>
                 <div>
-                  <strong>Documents:</strong> PDF, DOCX, TXT, RTF, HTML, EPUB
+                  <strong>Documents:</strong> DOCX, TXT, RTF, HTML, EPUB, PDF*
                 </div>
                 <div>
                   <strong>Archives:</strong> ZIP, RAR, 7Z, TAR, GZ, BZ2
                 </div>
+                <p>* Output Only</p>
               </p>
             </div>
           </div>

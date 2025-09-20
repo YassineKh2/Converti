@@ -39,7 +39,7 @@ function WelcomeAnimation() {
                     <div className="relative">
                         <div
                             className="h-12 w-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
-                            <img src="/Logo.png" className="h-6 w-6 animate-spin-reverse "
+                            <img src="Logo.png" className="h-6 w-6 animate-spin-reverse "
                                  style={{animationDuration: "3s"}} alt="logo"/>
                         </div>
                         <Sparkles
@@ -114,7 +114,7 @@ function OnboardingSlide({slide, isActive,nextGif}: { slide: Slide; isActive: bo
                                 <div
                                     className="w-full bg-white rounded-lg shadow-inner border flex items-center justify-center relative overflow-hidden">
                                     <img
-                                        src={`onboarding/${slide.media ? slide.media : nextGif}`}
+                                        src={`onboarding\\${slide.media ? slide.media : nextGif}`}
                                         alt={`${slide.title} demonstration`}
                                         className="w-full h-full object-cover rounded-lg"
                                     />
