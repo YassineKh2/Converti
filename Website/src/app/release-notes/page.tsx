@@ -4,6 +4,7 @@ import {Badge} from "@/components/ui/badge"
 import {Calendar, CheckCircle, Download, Github, Settings, Shield, Star, Zap} from "lucide-react"
 import {Navbar} from "@/components/Navbar";
 import {Footer} from "@/components/Footer";
+import Link from "next/link";
 
 export default function ReleaseNotesPage() {
     return (
@@ -178,11 +179,13 @@ export default function ReleaseNotesPage() {
 
                             <div className="pt-6 border-t">
                                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                                    <Button size="lg"
-                                            className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-8">
-                                        <Download className="w-5 h-5 mr-2"/>
-                                        Download v1.0.0
-                                    </Button>
+                                    <Link href="/download">
+                                        <Button size="lg"
+                                                className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-8">
+                                            <Download className="w-5 h-5 mr-2"/>
+                                            Download v1.0.0
+                                        </Button>
+                                    </Link>
                                     <Button size="lg" variant="outline" className="px-8 bg-transparent" asChild>
                                         <a
                                             href="https://github.com/YassineKh2/Converti"

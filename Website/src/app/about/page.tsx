@@ -5,6 +5,7 @@ import {Collapsible, CollapsibleContent, CollapsibleTrigger} from "@/components/
 import {Archive, ChevronDown, Code, Download, ExternalLink, Github, Shield} from "lucide-react"
 import {Navbar} from "@/components/Navbar";
 import {Footer} from "@/components/Footer";
+import Link from "next/link";
 
 export default function AboutPage() {
     return (
@@ -303,10 +304,13 @@ export default function AboutPage() {
                                 View Source Code
                             </a>
                         </Button>
-                        <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-8">
-                            <Download className="w-5 h-5 mr-2"/>
-                            Download Converti
-                        </Button>
+                        <Link href="/download">
+                            <Button size="lg"
+                                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-8">
+                                <Download className="w-5 h-5 mr-2"/>
+                                Download Converti
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </section>
