@@ -119,33 +119,6 @@ export default function DownloadPage() {
                             </CardContent>
                         </Card>
 
-                        <Card className="border-2 hover:border-accent/50 transition-colors">
-                            <CardHeader className="text-center">
-                                <Monitor className="w-12 h-12 text-accent mx-auto mb-4"/>
-                                <CardTitle>Linux</CardTitle>
-                                <CardDescription>Ubuntu 20.04+ / Debian 11+</CardDescription>
-                            </CardHeader>
-                            <CardContent className="text-center">
-                                <Button
-                                    className="w-full mb-4 bg-secondary hover:bg-secondary/90 text-secondary-foreground"
-                                    onClick={() =>
-                                        handleDownload(
-                                            "converti-1.0.0-linux-x64.AppImage",
-                                            "Linux",
-                                            "#",
-                                        )
-                                    }
-                                >
-                                    <Download className="w-4 h-4 mr-2"/>
-                                    Download for Linux
-                                </Button>
-                                <p className="text-sm text-muted-foreground">
-                                    converti-1.0.0-linux-x64.AppImage
-                                    <br/>
-                                    Size: 190 MB
-                                </p>
-                            </CardContent>
-                        </Card>
                     </div>
 
                     <Card className="mb-12">
@@ -263,45 +236,6 @@ export default function DownloadPage() {
                                     <div>
                                         <div className="font-medium text-sm">OS Version</div>
                                         <div className="text-sm text-muted-foreground">macOS 11.0+</div>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center">
-                                    <Monitor className="w-5 h-5 mr-2"/>
-                                    Linux
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                                <div className="flex items-start space-x-3">
-                                    <Cpu className="w-4 h-4 mt-1 text-accent"/>
-                                    <div>
-                                        <div className="font-medium text-sm">Processor</div>
-                                        <div className="text-sm text-muted-foreground">64-bit x86_64</div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start space-x-3">
-                                    <MemoryStick className="w-4 h-4 mt-1 text-accent"/>
-                                    <div>
-                                        <div className="font-medium text-sm">Memory</div>
-                                        <div className="text-sm text-muted-foreground">4 GB RAM minimum</div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start space-x-3">
-                                    <HardDrive className="w-4 h-4 mt-1 text-accent"/>
-                                    <div>
-                                        <div className="font-medium text-sm">Storage</div>
-                                        <div className="text-sm text-muted-foreground">800 MB free space</div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start space-x-3">
-                                    <Monitor className="w-4 h-4 mt-1 text-accent"/>
-                                    <div>
-                                        <div className="font-medium text-sm">Distribution</div>
-                                        <div className="text-sm text-muted-foreground">Ubuntu 20.04+</div>
                                     </div>
                                 </div>
                             </CardContent>

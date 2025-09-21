@@ -54,7 +54,7 @@ export default function ConvertiLandingPage() {
                         </Link>
                     </div>
                     <p className="text-sm text-muted-foreground mt-4">
-                        ✓ Windows, Mac & Linux • ✓ No Registration Required • ✓ Always Free
+                        ✓ Windows and Mac • ✓ No Registration Required • ✓ Always Free
                     </p>
                 </div>
             </section>

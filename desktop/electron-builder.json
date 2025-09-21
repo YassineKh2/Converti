@@ -1,5 +1,4 @@
 {
-  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
   "appId": "Converti",
   "asar": true,
   "directories": {
@@ -10,11 +9,11 @@
     "dist"
   ],
   "mac": {
-    "artifactName": "${productName}_${version}.${ext}",
     "target": [
-      "dmg",
-      "zip"
-    ]
+      "dmg"
+    ],
+    "artifactName": "${productName}_${version}.${ext}",
+    "icon": "assets/icons/icon.ico"
   },
   "win": {
     "target": [
@@ -33,11 +32,6 @@
     "perMachine": true,
     "allowToChangeInstallationDirectory": true,
     "deleteAppDataOnUninstall": false
-  },
-  "publish": {
-    "provider": "generic",
-    "channel": "latest",
-    "url": "https://github.com/electron-vite/electron-vite-react/releases/download/v0.9.9/"
   },
   "extraResources": [
     {

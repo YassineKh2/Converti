@@ -170,8 +170,7 @@ export default function ReleaseNotesPage() {
                                     <li className="flex items-start">
                                         <CheckCircle className="w-5 h-5 mr-3 text-accent mt-0.5 flex-shrink-0"/>
                                         <div>
-                                            <strong>Cross-Platform:</strong> Native support for Windows, macOS, and
-                                            Linux.
+                                            <strong>Cross-Platform:</strong> Native support for Windows and macOS
                                         </div>
                                     </li>
                                 </ul>
@@ -198,7 +197,7 @@ export default function ReleaseNotesPage() {
                                     </Button>
                                 </div>
                                 <p className="text-center text-sm text-muted-foreground mt-4">
-                                    Available for Windows, macOS, and Linux • 45MB download • No registration required
+                                    Available for Windows and macOS• 45MB download • No registration required
                                 </p>
                             </div>
                         </CardContent>
