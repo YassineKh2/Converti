@@ -1,6 +1,6 @@
 {
   "name": "Converti",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist-electron/main/index.js",
   "description": "A Simple Local Converter Application",
   "author": "Yassine Khemiri",
@@ -14,7 +14,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && electron-builder -mw",
+    "build": "tsc && vite build && electron-builder",
     "preview": "vite preview",
     "pretest": "vite build --mode=test",
     "test": "vitest run"

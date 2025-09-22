@@ -62,7 +62,7 @@ export default function DownloadPage() {
 
             <section className="py-12 px-4">
                 <div className="container mx-auto max-w-4xl">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <div className="w-full mb-6">
                         <Card className="border-2 hover:border-accent/50 transition-colors">
                             <CardHeader className="text-center">
                                 <Monitor className="w-12 h-12 text-accent mx-auto mb-4"/>
@@ -74,9 +74,9 @@ export default function DownloadPage() {
                                     className="w-full mb-4 bg-secondary hover:bg-secondary/90 text-secondary-foreground"
                                     onClick={() =>
                                         handleDownload(
-                                            "converti-1.0.0-windows-x64.exe",
+                                            "converti-1.0.1.exe",
                                             "Windows",
-                                            "https://www.dropbox.com/scl/fi/asf8vmumxwjww9sm49u0b/Converti_1.0.0.exe?rlkey=l9hxe0o6mf56s3nj7ndcwhlfw&st=4j3dfywl&dl=1",
+                                            "https://www.dropbox.com/scl/fi/j8htb7c73v528rucofxps/Converti_1.0.1.exe?rlkey=f3w6yf0uvo2lx0fqlxtpx3xzw&st=pwi4myfy&dl=1",
                                         )
                                     }
                                 >
@@ -84,35 +84,7 @@ export default function DownloadPage() {
                                     Download for Windows
                                 </Button>
                                 <p className="text-sm text-muted-foreground">
-                                    converti-1.0.0-windows-x64.exe
-                                    <br/>
-                                    Size: 190 MB
-                                </p>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="border-2 hover:border-accent/50 transition-colors">
-                            <CardHeader className="text-center">
-                                <Monitor className="w-12 h-12 text-accent mx-auto mb-4"/>
-                                <CardTitle>macOS</CardTitle>
-                                <CardDescription>macOS 11.0+ (Intel & Apple Silicon)</CardDescription>
-                            </CardHeader>
-                            <CardContent className="text-center">
-                                <Button
-                                    className="w-full mb-4 bg-secondary hover:bg-secondary/90 text-secondary-foreground"
-                                    onClick={() =>
-                                        handleDownload(
-                                            "converti-1.0.0-macos-universal.dmg",
-                                            "macOS",
-                                            "#",
-                                        )
-                                    }
-                                >
-                                    <Download className="w-4 h-4 mr-2"/>
-                                    Download for macOS
-                                </Button>
-                                <p className="text-sm text-muted-foreground">
-                                    converti-1.0.0-macos-universal.dmg
+                                    converti-1.0.1.exe
                                     <br/>
                                     Size: 190 MB
                                 </p>
@@ -162,7 +134,7 @@ export default function DownloadPage() {
                             systems</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="w-full">
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center">
@@ -170,7 +142,7 @@ export default function DownloadPage() {
                                     Windows
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-3">
+                            <CardContent className="space-y-3 flex items-start justify-around">
                                 <div className="flex items-start space-x-3">
                                     <Cpu className="w-4 h-4 mt-1 text-accent"/>
                                     <div>
@@ -197,45 +169,6 @@ export default function DownloadPage() {
                                     <div>
                                         <div className="font-medium text-sm">OS Version</div>
                                         <div className="text-sm text-muted-foreground">Windows 10/11</div>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center">
-                                    <Monitor className="w-5 h-5 mr-2"/>
-                                    macOS
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                                <div className="flex items-start space-x-3">
-                                    <Cpu className="w-4 h-4 mt-1 text-accent"/>
-                                    <div>
-                                        <div className="font-medium text-sm">Processor</div>
-                                        <div className="text-sm text-muted-foreground">Intel or Apple Silicon</div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start space-x-3">
-                                    <MemoryStick className="w-4 h-4 mt-1 text-accent"/>
-                                    <div>
-                                        <div className="font-medium text-sm">Memory</div>
-                                        <div className="text-sm text-muted-foreground">4 GB RAM minimum</div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start space-x-3">
-                                    <HardDrive className="w-4 h-4 mt-1 text-accent"/>
-                                    <div>
-                                        <div className="font-medium text-sm">Storage</div>
-                                        <div className="text-sm text-muted-foreground">800 MB free space</div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start space-x-3">
-                                    <Monitor className="w-4 h-4 mt-1 text-accent"/>
-                                    <div>
-                                        <div className="font-medium text-sm">OS Version</div>
-                                        <div className="text-sm text-muted-foreground">macOS 11.0+</div>
                                     </div>
                                 </div>
                             </CardContent>
