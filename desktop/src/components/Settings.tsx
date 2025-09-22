@@ -370,10 +370,10 @@ export function Settings({
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <FolderArchive className="h-5 w-5" />
-                Conversion Settings
+                Conversion & Archive Settings
               </CardTitle>
               <CardDescription>
-                Configure how the application behaves while converting files
+                Configure how the application behaves while converting files and archiving
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -381,22 +381,47 @@ export function Settings({
                 <div className="space-y-0.5">
                   <Label htmlFor="archive">Enable Archive</Label>
                   <Label
-                    className="text-sm text-gray-500 font-normal"
-                    htmlFor="archive"
+                      className="text-sm text-gray-500 font-normal"
+                      htmlFor="archive"
                   >
                     Show the option to archive uploaded files
                   </Label>
                 </div>
                 <Switch
-                  checked={localSettings.showArchive}
-                  className="data-[state=checked]:bg-secondary"
-                  id="archive"
-                  onCheckedChange={(checked) =>
-                    setLocalSettings({
-                      ...localSettings,
-                      showArchive: checked,
-                    })
-                  }
+                    checked={localSettings.showArchive}
+                    className="data-[state=checked]:bg-secondary"
+                    id="archive"
+                    onCheckedChange={(checked) =>
+                        setLocalSettings({
+                          ...localSettings,
+                          showArchive: checked,
+                        })
+                    }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="confirmBeforeConvert">
+                    Clear Files
+                  </Label>
+                  <Label
+                      className="text-sm text-gray-500 font-normal"
+                      htmlFor="confirmBeforeConvert"
+                  >
+                    Clear files after finishing a successful convert
+                  </Label>
+                </div>
+                <Switch
+                    checked={localSettings.clearFiles}
+                    className="data-[state=checked]:bg-secondary"
+                    id="confirmBeforeConvert"
+                    onCheckedChange={(checked) =>
+                        setLocalSettings({
+                          ...localSettings,
+                          clearFiles: checked,
+                        })
+                    }
                 />
               </div>
             </CardContent>
@@ -405,7 +430,7 @@ export function Settings({
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <Bell className="h-5 w-5" />
+                <Bell className="h-5 w-5"/>
                 Notifications & Progress
               </CardTitle>
               <CardDescription>
@@ -418,8 +443,8 @@ export function Settings({
                 <div className="space-y-0.5">
                   <Label htmlFor="notifications">Enable Notifications</Label>
                   <Label
-                    className="text-sm text-gray-500 font-normal"
-                    htmlFor="notifications"
+                      className="text-sm text-gray-500 font-normal"
+                      htmlFor="notifications"
                   >
                     Show notifications when complete
                   </Label>

@@ -12,6 +12,7 @@ export interface AppSettings {
   autoOpenFolder: boolean;
   confirmBeforeConvert: boolean;
   showArchive: boolean;
+  clearFiles: boolean;
 }
 export interface InternalAppSettings {
   firstLunch : boolean

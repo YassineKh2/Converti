@@ -250,6 +250,9 @@ export default function FileConverter() {
                 },
             });
         }
+        if (settings.clearFiles){
+            setUploadedFiles([])
+        }
 
         toast.success(
             `${uploadedFile.name} converted to ${uploadedFile.selectedFormat} format!`,
@@ -350,6 +353,9 @@ export default function FileConverter() {
                 functionRef: () => {
                 },
             });
+        }
+        if (settings.clearFiles && SuccessfulConverts === nbFiles) {
+            setUploadedFiles([])
         }
 
         toast.success(
@@ -455,6 +461,10 @@ export default function FileConverter() {
                 functionRef: () => {
                 },
             });
+        }
+
+        if (settings.clearFiles && SuccessfulConverts === nbFiles) {
+            setUploadedFiles([])
         }
 
         toast.success(`Successfully converted ${SuccessfulConverts} files!`);
@@ -600,6 +610,11 @@ export default function FileConverter() {
         return group.files.length === 1 || !group.globalFormat;
     };
 
+
+    function isSameFormat(format: string, name: string) {
+        const ext = name.split('.').pop()
+        return format.toUpperCase() === ext?.toUpperCase();
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 p-4 flex flex-col justify-between">
@@ -1011,7 +1026,7 @@ export default function FileConverter() {
                                                                                     {uploadedFile.size}
                                                                                     {effectiveFormat && (
                                                                                         <span className="ml-2">
-                                              → {effectiveFormat}
+                                                                                      → {effectiveFormat}
                                                                                             {isOverridden && (
                                                                                                 <Badge
                                                                                                     className="ml-1 text-xs"
@@ -1060,6 +1075,7 @@ export default function FileConverter() {
                                                                                 }`}
                                                                             >
                                                                                 {conversionOptions.map((format) => (
+                                                                                    !isSameFormat(format,uploadedFile.name) &&
                                                                                     <Button
                                                                                         key={format}
                                                                                         className={

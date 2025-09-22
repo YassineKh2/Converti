@@ -24,6 +24,7 @@ export const getConversionOptions = (
   const availableOptions = options[category] || options.other;
   const currentExt = currentType.split("/")[1]?.toUpperCase();
 
+  console.log(currentExt)
   return availableOptions.filter((option) => option !== currentExt);
 };
 

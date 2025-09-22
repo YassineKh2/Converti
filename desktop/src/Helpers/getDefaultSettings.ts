@@ -14,4 +14,5 @@ export const defaultSettings: AppSettings = {
   autoOpenFolder: true,
   confirmBeforeConvert: false,
   showArchive: true,
+  clearFiles:true
 };
