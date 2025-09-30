@@ -49,13 +49,13 @@ Converti uses a mix of modern web technologies and high-performance processing l
 
 ## 🌐 Live Website
 
-[Converti](https://converti-five.vercel.app)
+[Converti](https://convertiapp.netlify.app/)
 
 ---
 
 ## 📄 Documentation
 
-- **[Website README](./website/README.md)** — Details about the web version
+- **[Website README](./Website/README.md)** — Details about the web version
 - **[Desktop App README](./desktop/README.md)** — Details about the desktop version
 
 ## 🤝 Contributing
